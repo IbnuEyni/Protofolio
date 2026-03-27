@@ -26,8 +26,8 @@
 substitutions:
   _REGION:         "us-central1"
   _ARTIFACT_REPO:  "portfolio-images"
-  _CLOUD_SQL_CONN: "${PROJECT_ID}:us-central1:portfolio-db"
-  _SA_EMAIL:       "portfolio-cloudrun-sa@${PROJECT_ID}.iam.gserviceaccount.com"
+  _CLOUD_SQL_CONN: "my-ocr-project-489212:us-central1:portfolio-db"
+  _SA_EMAIL:       "portfolio-cloudrun-sa@my-ocr-project-489212.iam.gserviceaccount.com"
   _BACKEND_SVC:    "portfolio-backend"
   _FRONTEND_SVC:   "portfolio-frontend"
   _SHORT_SHA:      "latest"
@@ -44,13 +44,13 @@ options:
   logging: CLOUD_LOGGING_ONLY
   # Substitution variables must all be defined
   substitutionOption: ALLOW_LOOSE
-  # Dynamic substitutions allow ${PROJECT_ID} inside substitution values
-  dynamicSubstitutions: true
+  # Dynamic substitutions allow my-ocr-project-489212 inside substitution values
+  dynamicSubstitutions: false
   # Environment variables available to all steps
   env:
     - "REGION=${_REGION}"
     - "REPO=${_ARTIFACT_REPO}"
-    - "REGISTRY=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}"
+    - "REGISTRY=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}"
     - "SHORT_SHA=${_SHORT_SHA}"
 
 steps:
@@ -62,10 +62,10 @@ steps:
     args:
       - "build"
       - "--file=backend/Dockerfile"
-      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
-      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:latest"
+      - "--tag=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
+      - "--tag=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:latest"
       # Layer cache: pull the previous latest to reuse unchanged layers
-      - "--cache-from=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:latest"
+      - "--cache-from=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:latest"
       - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "backend"
     env:
@@ -78,9 +78,9 @@ steps:
     args:
       - "build"
       - "--file=frontend/Dockerfile"
-      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
-      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:latest"
-      - "--cache-from=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:latest"
+      - "--tag=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
+      - "--tag=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:latest"
+      - "--cache-from=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:latest"
       - "--build-arg=BUILDKIT_INLINE_CACHE=1"
       - "--build-arg=NEXT_PUBLIC_API_URL="
       - "frontend"
@@ -94,7 +94,7 @@ steps:
     args:
       - "push"
       - "--all-tags"
-      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend"
+      - "${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend"
 
   # ── Step 2b: Push frontend ───────────────────────────────────────────────────
   - id: "push-frontend"
@@ -103,7 +103,7 @@ steps:
     args:
       - "push"
       - "--all-tags"
-      - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend"
+      - "${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend"
 
   # ── Step 3a: Vulnerability scan — backend ────────────────────────────────────
   # Uses GCP Artifact Analysis (Container Scanning API).
@@ -117,7 +117,7 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
+        IMAGE="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
         echo "▶ Waiting for vulnerability scan to complete..."
         # Poll until the scan finishes (up to 5 minutes)
         for i in $(seq 1 30); do
@@ -152,7 +152,7 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
+        IMAGE="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
         echo "▶ Waiting for vulnerability scan to complete..."
         for i in $(seq 1 30); do
           STATUS=$(gcloud artifacts docker images describe "$IMAGE" \
@@ -185,7 +185,7 @@ steps:
       - "run"
       - "deploy"
       - "${_BACKEND_SVC}"
-      - "--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
+      - "--image=${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
       - "--region=${_REGION}"
       - "--platform=managed"
       # Service account with least-privilege roles
@@ -222,7 +222,7 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
+        IMAGE="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
 
         # Create or update the migration job
         if gcloud run jobs describe portfolio-migrate --region="${_REGION}" --quiet 2>/dev/null; then
@@ -296,7 +296,7 @@ steps:
         echo "▶ Deploying frontend with BACKEND_URL=$BACKEND_URL"
 
         gcloud run deploy "${_FRONTEND_SVC}" \
-          --image="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}" \
+          --image="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}" \
           --region="${_REGION}" \
           --platform=managed \
           --service-account="${_SA_EMAIL}" \
@@ -382,10 +382,10 @@ steps:
 
 # Images to push to Artifact Registry (Cloud Build tracks these for provenance)
 images:
-  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
-  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:latest"
-  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
-  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:latest"
+  - "${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
+  - "${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:latest"
+  - "${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
+  - "${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:latest"
 
 # Total build timeout — 30 minutes is generous for two image builds + deploy
 timeout: "1800s"
