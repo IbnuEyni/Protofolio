@@ -117,11 +117,11 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
+        IMG="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
         echo "▶ Waiting for vulnerability scan to complete..."
         # Poll until the scan finishes (up to 5 minutes)
         for i in $(seq 1 30); do
-          STATUS=$(gcloud artifacts docker images describe "$IMAGE" \
+          STATUS=$(gcloud artifacts docker images describe "$IMG" \
             --show-package-vulnerability \
             --format="value(vulnerability_summary.severity_counts.CRITICAL)" \
             2>/dev/null || echo "PENDING")
@@ -131,7 +131,7 @@ steps:
           echo "  Scan pending... ($i/30)"
           sleep 10
         done
-        CRITICAL=$(gcloud artifacts docker images describe "$IMAGE" \
+        CRITICAL=$(gcloud artifacts docker images describe "$IMG" \
           --show-package-vulnerability \
           --format="value(vulnerability_summary.severity_counts.CRITICAL)" \
           2>/dev/null || echo "0")
@@ -152,10 +152,10 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
+        IMG="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
         echo "▶ Waiting for vulnerability scan to complete..."
         for i in $(seq 1 30); do
-          STATUS=$(gcloud artifacts docker images describe "$IMAGE" \
+          STATUS=$(gcloud artifacts docker images describe "$IMG" \
             --show-package-vulnerability \
             --format="value(vulnerability_summary.severity_counts.CRITICAL)" \
             2>/dev/null || echo "PENDING")
@@ -165,7 +165,7 @@ steps:
           echo "  Scan pending... ($i/30)"
           sleep 10
         done
-        CRITICAL=$(gcloud artifacts docker images describe "$IMAGE" \
+        CRITICAL=$(gcloud artifacts docker images describe "$IMG" \
           --show-package-vulnerability \
           --format="value(vulnerability_summary.severity_counts.CRITICAL)" \
           2>/dev/null || echo "0")
@@ -222,17 +222,17 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
+        IMG="${_REGION}-docker.pkg.dev/my-ocr-project-489212/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
 
         # Create or update the migration job
         if gcloud run jobs describe portfolio-migrate --region="${_REGION}" --quiet 2>/dev/null; then
           gcloud run jobs update portfolio-migrate \
-            --image="$IMAGE" \
+            --image="$IMG" \
             --region="${_REGION}" \
             --quiet
         else
           gcloud run jobs create portfolio-migrate \
-            --image="$IMAGE" \
+            --image="$IMG" \
             --region="${_REGION}" \
             --service-account="${_SA_EMAIL}" \
             --set-cloudsql-instances="${_CLOUD_SQL_CONN}" \
