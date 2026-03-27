@@ -30,6 +30,7 @@ substitutions:
   _SA_EMAIL:       "portfolio-cloudrun-sa@${PROJECT_ID}.iam.gserviceaccount.com"
   _BACKEND_SVC:    "portfolio-backend"
   _FRONTEND_SVC:   "portfolio-frontend"
+  _SHORT_SHA:      "latest"
 
 # Make the short SHA available as a tag
 tags:
@@ -42,7 +43,7 @@ options:
   # Stream logs to Cloud Logging in real time
   logging: CLOUD_LOGGING_ONLY
   # Substitution variables must all be defined
-  substitutionOption: MUST_MATCH
+  substitutionOption: ALLOW_LOOSE
   # Dynamic substitutions allow ${PROJECT_ID} inside substitution values
   dynamicSubstitutions: true
   # Environment variables available to all steps
