@@ -9,6 +9,8 @@ import PerformanceDashboard from "@/components/PerformanceDashboard";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <>
