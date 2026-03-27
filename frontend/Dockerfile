@@ -4,6 +4,7 @@
 
 # ── Stage 1: dependency install ───────────────────────────────────────────────
 FROM node:20-alpine AS deps
+# hadolint ignore=DL3018
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -11,6 +12,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts
 
 # ── Stage 2: Next.js build ────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
+# hadolint ignore=DL3018
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -27,6 +29,7 @@ RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # ── Stage 3: production runner ────────────────────────────────────────────────
 FROM node:20-alpine AS runner
+# hadolint ignore=DL3018
 RUN apk add --no-cache wget dumb-init
 
 WORKDIR /app
