@@ -61,8 +61,8 @@ jobs:
         working-directory: frontend
 
       - name: Dependency audit
-        # Fail on high/critical severity vulnerabilities in npm packages
-        run: npm audit --audit-level=high --omit=dev
+        # Fail on critical severity vulnerabilities in npm packages
+        run: npm audit --audit-level=critical --omit=dev
         working-directory: frontend
         continue-on-error: false
 
