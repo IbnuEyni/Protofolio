@@ -33,7 +33,7 @@ substitutions:
 
 # Make the short SHA available as a tag
 tags:
-  - "commit-${SHORT_SHA}"
+  - "commit-${_SHORT_SHA}"
   - "portfolio"
 
 options:
@@ -50,7 +50,7 @@ options:
     - "REGION=${_REGION}"
     - "REPO=${_ARTIFACT_REPO}"
     - "REGISTRY=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}"
-    - "SHORT_SHA=${SHORT_SHA}"
+    - "SHORT_SHA=${_SHORT_SHA}"
 
 steps:
 
@@ -61,7 +61,7 @@ steps:
     args:
       - "build"
       - "--file=backend/Dockerfile"
-      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${SHORT_SHA}"
+      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
       - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:latest"
       # Layer cache: pull the previous latest to reuse unchanged layers
       - "--cache-from=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:latest"
@@ -77,7 +77,7 @@ steps:
     args:
       - "build"
       - "--file=frontend/Dockerfile"
-      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${SHORT_SHA}"
+      - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
       - "--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:latest"
       - "--cache-from=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:latest"
       - "--build-arg=BUILDKIT_INLINE_CACHE=1"
@@ -116,7 +116,7 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${SHORT_SHA}"
+        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
         echo "▶ Waiting for vulnerability scan to complete..."
         # Poll until the scan finishes (up to 5 minutes)
         for i in $(seq 1 30); do
@@ -151,7 +151,7 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${SHORT_SHA}"
+        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
         echo "▶ Waiting for vulnerability scan to complete..."
         for i in $(seq 1 30); do
           STATUS=$(gcloud artifacts docker images describe "$IMAGE" \
@@ -184,7 +184,7 @@ steps:
       - "run"
       - "deploy"
       - "${_BACKEND_SVC}"
-      - "--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${SHORT_SHA}"
+      - "--image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
       - "--region=${_REGION}"
       - "--platform=managed"
       # Service account with least-privilege roles
@@ -221,7 +221,7 @@ steps:
       - "pipefail"
       - "-c"
       - |
-        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${SHORT_SHA}"
+        IMAGE="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
 
         # Create or update the migration job
         if gcloud run jobs describe portfolio-migrate --region="${_REGION}" --quiet 2>/dev/null; then
@@ -295,7 +295,7 @@ steps:
         echo "▶ Deploying frontend with BACKEND_URL=$BACKEND_URL"
 
         gcloud run deploy "${_FRONTEND_SVC}" \
-          --image="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${SHORT_SHA}" \
+          --image="${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}" \
           --region="${_REGION}" \
           --platform=managed \
           --service-account="${_SA_EMAIL}" \
@@ -374,16 +374,16 @@ steps:
         echo ""
         echo "════════════════════════════════════════════════════"
         echo "🚀 Deployment successful"
-        echo "   Commit   : ${SHORT_SHA}"
+        echo "   Commit   : ${_SHORT_SHA}"
         echo "   Backend  : $BACKEND_URL"
         echo "   Frontend : $FRONTEND_URL"
         echo "════════════════════════════════════════════════════"
 
 # Images to push to Artifact Registry (Cloud Build tracks these for provenance)
 images:
-  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${SHORT_SHA}"
+  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:${_SHORT_SHA}"
   - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/backend:latest"
-  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${SHORT_SHA}"
+  - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:${_SHORT_SHA}"
   - "${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REPO}/frontend:latest"
 
 # Total build timeout — 30 minutes is generous for two image builds + deploy

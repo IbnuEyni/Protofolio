@@ -160,7 +160,7 @@ jobs:
           BUILD_ID=$(gcloud builds submit \
             --no-source \
             --config=cloudbuild.yaml \
-            --substitutions="_REGION=${REGION},SHORT_SHA=${GITHUB_SHA:0:7}" \
+            --substitutions="_REGION=${REGION},_SHORT_SHA=${GITHUB_SHA:0:7}" \
             --async \
             --format="value(id)")
           echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
