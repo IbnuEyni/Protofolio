@@ -33,7 +33,7 @@ substitutions:
   _SHORT_SHA:      "latest"
 
 # Make the short SHA available as a tag
-tags:
+tags: 
   - "commit-${_SHORT_SHA}"
   - "portfolio"
 
