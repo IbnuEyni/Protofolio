@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-portfolio}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - portfolio_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-portfolio}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build: ./backend
+    image: portfolio-backend:local
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-portfolio}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+    ports:
+      - "5000:5000"
+    networks:
+      - portfolio_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://backend:5000
+        BACKEND_URL: http://backend:5000
+      cache_from:
+        - portfolio-frontend:local
+    image: portfolio-frontend:local
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:5000
+      API_URL: http://backend:5000
+      BACKEND_URL: http://backend:5000
+      NEXT_PUBLIC_INTERNAL_URL: http://localhost:3000
+    ports:
+      - "3000:3000"
+    networks:
+      - portfolio_net
+    depends_on:
+      backend:
+        condition: service_healthy
+
+networks:
+  portfolio_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  next_cache:

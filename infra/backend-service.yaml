@@ -1,0 +1,141 @@
+# infra/backend-service.yaml
+# Cloud Run service manifest for the Flask backend.
+#
+# Deployed by cloudbuild.yaml via `gcloud run deploy` (step 4).
+# This file is the declarative source of truth for the service configuration.
+# Used for `gcloud run services replace` in manual / GitOps deployments.
+#
+# Placeholders substituted by envsubst before apply:
+#   ${PROJECT_ID}  ${REGION}  ${IMAGE_TAG}  ${CLOUD_SQL_CONN}  ${SA_EMAIL}
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+
+metadata:
+  name: portfolio-backend
+  labels:
+    app: portfolio
+    tier: backend
+  annotations:
+    # Only allow HTTPS traffic — Cloud Run enforces TLS termination
+    run.googleapis.com/ingress: all
+    # Binary Authorization — require attested images (enable in GCP Console)
+    # run.googleapis.com/binary-authorization: default
+
+spec:
+  template:
+    metadata:
+      labels:
+        app: portfolio
+        tier: backend
+        commit: "${IMAGE_TAG}"
+      annotations:
+        # ── Cloud SQL Auth Proxy ──────────────────────────────────────────────
+        # Connects via Unix domain socket — no TCP, no password over the network.
+        # The Cloud SQL Auth Proxy sidecar is injected automatically by Cloud Run.
+        run.googleapis.com/cloudsql-instances: "${CLOUD_SQL_CONN}"
+
+        # ── Scaling ───────────────────────────────────────────────────────────
+        # min=0: scale to zero when idle (cost saving for portfolio)
+        # max=4: burst capacity; raise for production SaaS
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "4"
+
+        # ── CPU allocation ────────────────────────────────────────────────────
+        # cpu-throttling=true: CPU only allocated during request processing.
+        # Set to false if you have background threads (e.g. APScheduler).
+        run.googleapis.com/cpu-throttling: "true"
+
+        # ── Execution environment ─────────────────────────────────────────────
+        # gen2 provides full Linux compatibility, better networking, and gVisor
+        run.googleapis.com/execution-environment: gen2
+
+        # ── Startup CPU boost ─────────────────────────────────────────────────
+        # Temporarily allocates extra CPU during cold start to reduce latency
+        run.googleapis.com/startup-cpu-boost: "true"
+
+    spec:
+      # Dedicated service account with least-privilege IAM roles:
+      #   roles/cloudsql.client
+      #   roles/secretmanager.secretAccessor
+      serviceAccountName: "${SA_EMAIL}"
+
+      # Max concurrent requests per container instance.
+      # Matches gunicorn workers(2) × threads(4) = 8 effective slots,
+      # but Cloud Run queues up to 80 before spinning a new instance.
+      containerConcurrency: 80
+
+      # Must be ≤ Cloud Run's max (3600s). Match gunicorn --timeout.
+      timeoutSeconds: 60
+
+      containers:
+        - name: backend
+          image: "${REGION}-docker.pkg.dev/${PROJECT_ID}/portfolio-images/backend:${IMAGE_TAG}"
+
+          ports:
+            - name: http1
+              containerPort: 5000
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+
+          # ── Secrets from Secret Manager ─────────────────────────────────────
+          # Injected as environment variables at runtime.
+          # The image itself contains NO credentials.
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: DATABASE_URL
+                  key: latest
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: DEEPSEEK_API_KEY
+                  key: latest
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ADMIN_TOKEN
+                  key: latest
+            # Non-secret runtime config
+            - name: FLASK_ENV
+              value: "production"
+            - name: PYTHONDONTWRITEBYTECODE
+              value: "1"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+
+          # ── Probes ───────────────────────────────────────────────────────────
+          # startupProbe: gives the container time to boot before liveness kicks in
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 12   # 60s total startup window
+            successThreshold: 1
+            timeoutSeconds: 3
+
+          # livenessProbe: restarts the container if it becomes unresponsive
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+  # ── Traffic splitting ────────────────────────────────────────────────────────
+  # 100% to latest revision. Adjust for canary deployments:
+  #   - revisionName: portfolio-backend-00010-abc  percent: 90
+  #   - latestRevision: true                        percent: 10
+  traffic:
+    - latestRevision: true
+      percent: 100

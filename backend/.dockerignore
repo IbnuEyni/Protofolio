@@ -1,0 +1,54 @@
+# backend/.dockerignore
+# Excludes everything that must not enter the Docker build context.
+# Smaller context = faster builds and no accidental secret leakage.
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Secrets & environment files — NEVER in image
+.env
+.env.*
+*.key
+*.pem
+*.p12
+secrets/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+infra/
+
+# Dev tooling
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.log
+
+# Docs
+*.md
+*.rst
+docs/
+
+# OS artifacts
+.DS_Store
+Thumbs.db

@@ -1,0 +1,96 @@
+# infra/frontend-service.yaml
+# Cloud Run service manifest for the Next.js frontend.
+#
+# Deployed by cloudbuild.yaml step 7.
+# BACKEND_URL is resolved at deploy time from the backend service URL —
+# it is never baked into the Docker image.
+#
+# Placeholders substituted by envsubst before apply:
+#   ${PROJECT_ID}  ${REGION}  ${IMAGE_TAG}  ${BACKEND_SERVICE_URL}  ${SA_EMAIL}
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+
+metadata:
+  name: portfolio-frontend
+  labels:
+    app: portfolio
+    tier: frontend
+  annotations:
+    run.googleapis.com/ingress: all
+
+spec:
+  template:
+    metadata:
+      labels:
+        app: portfolio
+        tier: frontend
+        commit: "${IMAGE_TAG}"
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "4"
+        run.googleapis.com/cpu-throttling: "true"
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/startup-cpu-boost: "true"
+
+    spec:
+      serviceAccountName: "${SA_EMAIL}"
+      containerConcurrency: 80
+      timeoutSeconds: 60
+
+      containers:
+        - name: frontend
+          image: "${REGION}-docker.pkg.dev/${PROJECT_ID}/portfolio-images/frontend:${IMAGE_TAG}"
+
+          ports:
+            - name: http1
+              containerPort: 3000
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+
+          env:
+            # ── Runtime env vars ──────────────────────────────────────────────
+            # BACKEND_URL: the Cloud Run URL of the backend service.
+            # Used by Next.js rewrites (server-side only) to proxy /api/* calls.
+            # This is NOT a secret — it's a public Cloud Run HTTPS URL.
+            - name: BACKEND_URL
+              value: "${BACKEND_SERVICE_URL}"
+
+            # NEXT_PUBLIC_API_URL: intentionally empty.
+            # Client components call /api/* through the Next.js rewrite proxy
+            # (same origin), so no direct backend URL is exposed to the browser.
+            - name: NEXT_PUBLIC_API_URL
+              value: ""
+
+            - name: NODE_ENV
+              value: "production"
+            - name: NEXT_TELEMETRY_DISABLED
+              value: "1"
+
+          startupProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 12
+            successThreshold: 1
+            timeoutSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+  traffic:
+    - latestRevision: true
+      percent: 100

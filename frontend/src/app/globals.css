@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --neon-indigo: #6366f1;
+    --neon-violet: #8b5cf6;
+    --neon-cyan:   #22d3ee;
+    --neon-emerald:#10b981;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    background-color: #030712;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.12), transparent),
+      radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 28px 28px;
+  }
+}
+
+@layer utilities {
+  .neon-border-indigo { box-shadow: 0 0 0 1px rgba(99,102,241,0.4), 0 0 20px rgba(99,102,241,0.08); }
+  .neon-border-violet { box-shadow: 0 0 0 1px rgba(139,92,246,0.4), 0 0 20px rgba(139,92,246,0.08); }
+  .neon-border-cyan   { box-shadow: 0 0 0 1px rgba(34,211,238,0.4),  0 0 20px rgba(34,211,238,0.08);  }
+  .neon-border-emerald{ box-shadow: 0 0 0 1px rgba(16,185,129,0.4),  0 0 20px rgba(16,185,129,0.08);  }
+  .glow-text-indigo   { text-shadow: 0 0 20px rgba(99,102,241,0.6);  }
+  .glow-text-cyan     { text-shadow: 0 0 20px rgba(34,211,238,0.6);  }
+  .hero-name          { text-shadow: 0 0 80px rgba(99,102,241,0.18), 0 0 160px rgba(139,92,246,0.10); }
+}

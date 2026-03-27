@@ -1,0 +1,45 @@
+# frontend/.dockerignore
+# Excludes everything that must not enter the Docker build context.
+
+# Dependencies — reinstalled inside the image via npm ci
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js build output — rebuilt inside the image
+.next/
+out/
+
+# Secrets & environment files — NEVER in image
+.env
+.env.*
+*.local
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD configs
+.github/
+infra/
+
+# TypeScript build info (regenerated during build)
+*.tsbuildinfo
+next-env.d.ts
+
+# Dev tooling
+.eslintcache
+.stylelintcache
+coverage/
+*.log
+npm-debug.log*
+
+# Docs
+*.md
+*.txt
+!public/**/*.txt
+
+# OS artifacts
+.DS_Store
+Thumbs.db
