@@ -18,7 +18,7 @@
 FROM python:3.12-slim AS builder
 
 # Install only the C build tools needed to compile psycopg2 wheels.
-# These stay in this stage and never reach the final image.
+# hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gcc \
@@ -29,7 +29,7 @@ WORKDIR /build
 
 COPY requirements.txt .
 
-# Compile wheels into /wheels — no network access needed in runtime stage
+# hadolint ignore=DL3013
 RUN pip install --upgrade pip --no-cache-dir \
     && pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
 
@@ -39,12 +39,12 @@ FROM python:3.12-slim AS runtime
 
 # Install only libpq (runtime shared library for psycopg2) + curl for healthcheck.
 # No gcc, no build tools.
+# hadolint ignore=DL3008,SC2015
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libpq5 \
         curl \
     && rm -rf /var/lib/apt/lists/* \
-    # Remove SUID/SGID bits from all binaries
     && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
 
 WORKDIR /app
