@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  REGISTRY: us-central1-docker.pkg.dev/my-ocr-project-489212/portfolio-images
+  REGISTRY: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/portfolio-images
 
 jobs:
   # ── Job 1: Frontend lint + type-check ───────────────────────────────────────
@@ -109,18 +109,18 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: my-ocr-project-489212
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Ensure Artifact Registry repo exists
         run: |
           gcloud artifacts repositories describe portfolio-images \
-            --location=us-central1 --quiet 2>/dev/null || \
+            --location=${{ secrets.GCP_REGION }} --quiet 2>/dev/null || \
           gcloud artifacts repositories create portfolio-images \
             --repository-format=docker \
-            --location=us-central1 \
+            --location=${{ secrets.GCP_REGION }} \
             --quiet
 
       - name: Build & push backend
@@ -158,10 +158,10 @@ jobs:
         run: |
           gcloud run deploy portfolio-backend \
             --image=$REGISTRY/backend:${TAG:0:7} \
-            --region=us-central1 \
+            --region=${{ secrets.GCP_REGION }} \
             --platform=managed \
-            --service-account=portfolio-cloudrun-sa@my-ocr-project-489212.iam.gserviceaccount.com \
-            --add-cloudsql-instances=my-ocr-project-489212:us-central1:portfolio-db \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --add-cloudsql-instances=${{ secrets.CLOUD_SQL_CONN }} \
             --set-secrets=DATABASE_URL=DATABASE_URL:latest,DEEPSEEK_API_KEY=DEEPSEEK_API_KEY:latest,ADMIN_TOKEN=ADMIN_TOKEN:latest \
             --set-env-vars=FLASK_ENV=production \
             --min-instances=0 \
@@ -174,12 +174,12 @@ jobs:
           TAG: ${{ github.sha }}
         run: |
           BACKEND_URL=$(gcloud run services describe portfolio-backend \
-            --region=us-central1 --format="value(status.url)")
+            --region=${{ secrets.GCP_REGION }} --format="value(status.url)")
           gcloud run deploy portfolio-frontend \
             --image=$REGISTRY/frontend:${TAG:0:7} \
-            --region=us-central1 \
+            --region=${{ secrets.GCP_REGION }} \
             --platform=managed \
-            --service-account=portfolio-cloudrun-sa@my-ocr-project-489212.iam.gserviceaccount.com \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --set-env-vars=NODE_ENV=production,BACKEND_URL=$BACKEND_URL,NEXT_TELEMETRY_DISABLED=1 \
             --min-instances=0 \
             --max-instances=4 \
@@ -189,9 +189,9 @@ jobs:
       - name: Print deployed URLs
         run: |
           BACKEND_URL=$(gcloud run services describe portfolio-backend \
-            --region=us-central1 --format="value(status.url)")
+            --region=${{ secrets.GCP_REGION }} --format="value(status.url)")
           FRONTEND_URL=$(gcloud run services describe portfolio-frontend \
-            --region=us-central1 --format="value(status.url)")
+            --region=${{ secrets.GCP_REGION }} --format="value(status.url)")
           echo "====================================="
           echo "Frontend : $FRONTEND_URL"
           echo "Backend  : $BACKEND_URL"
