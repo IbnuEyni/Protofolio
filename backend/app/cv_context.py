@@ -20,186 +20,214 @@ CHUNKS: List[Chunk] = [
     # ── Identity ─────────────────────────────────────────────────────────────
     Chunk(
         content=(
-            "Amir is a Software & AI Engineer with 3+ years of professional experience "
-            "specialising in backend systems, REST API design, and applied AI/NLP. "
-            "He has worked at NextGen Solutions (Backend Project Lead), A2SV (Flutter Developer), "
-            "and iCog-Labs (AI Developer). He is fluent in English and Amharic."
+            "Amir Ahmedin Temam is an AI Engineer based in Kigali, Rwanda, specialising in multi-agent "
+            "systems, evaluation benchmarks, and production automation pipelines. He shipped 9 AI agent "
+            "systems in 12 weeks, and works across LLM integration, RAG architectures, CRM automation, and "
+            "centralized agent coordination. Career: AI Agent Systems Engineer at 10 Academy (02/2026–present), "
+            "Back-end Developer Project Lead at NextGen Solutions (07/2025–01/2026), API Integration & "
+            "Automation Specialist at ReiSearch (11/2024–06/2025), AI Developer at iCog-Labs (03/2024–10/2024), "
+            "AI Researcher at the Ethiopian Artificial Intelligence Institute (04/2023–03/2024), and Flutter "
+            "Developer at A2SV (11/2021–04/2023). He speaks English and Amharic. "
+            "Contact: shuaibamir69@gmail.com · github.com/IbnuEyni · huggingface.co/shuaibam."
         ),
-        keywords=["who", "about", "introduce", "background", "summary", "engineer",
-                  "experience", "Amir", "profile", "ማን", "ስለ", "መግለጫ"],
+        keywords=["who", "about", "introduce", "background", "summary", "engineer", "experience",
+                  "amir", "profile", "contact", "email", "career", "kigali", "ማን", "ስለ", "መግለጫ"],
         weight=1.2,
     ),
 
-    # ── Amharic NLP & HuggingFace fine-tuning ────────────────────────────────
+    # ── Education ─────────────────────────────────────────────────────────────
     Chunk(
         content=(
-            "Amir has deep expertise in Amharic NLP. At iCog-Labs he fine-tuned "
-            "HuggingFace transformer models (mBERT, XLM-R) for Amharic text classification, "
-            "named-entity recognition (NER), and machine translation. "
-            "He reduced the Word Error Rate (WER) by 35% on an Amharic ASR benchmark by "
-            "applying data augmentation and language-model rescoring. "
-            "He also fine-tuned Helsinki-NLP and NLLB-200 translation models for "
-            "Amharic↔English and Amharic↔French pairs, achieving BLEU score improvements "
-            "of up to 12 points over baseline. "
-            "His work is grounded in the Ge'ez script and the morphological complexity "
-            "of Ethiopic languages."
+            "Education: M.S. in Artificial Intelligence, Carnegie Mellon University Africa (05/2026). "
+            "B.S. in Software Engineering and Computing Technologies with an AI major, Addis Ababa "
+            "University (07/2024)."
         ),
-        keywords=["amharic", "nlp", "huggingface", "fine-tune", "fine-tuning", "transformer",
-                  "mbert", "xlm", "xlm-r", "ner", "named entity", "translation", "wer",
-                  "word error rate", "asr", "speech", "bleu", "nllb", "helsinki",
-                  "geez", "ethiopic", "language model", "አማርኛ", "ትርጉም", "ቋንቋ",
-                  "classification", "bert", "multilingual"],
-        weight=2.0,
-    ),
-
-    # ── Calldi project ────────────────────────────────────────────────────────
-    Chunk(
-        content=(
-            "Calldi is an AI-powered call analytics platform Amir built at iCog-Labs. "
-            "It uses speech-to-text (Whisper + custom Amharic ASR) and NLP pipelines to "
-            "automatically transcribe, classify, and summarise customer service calls. "
-            "The system achieved a 90% reduction in manual data-entry time for call-centre "
-            "operators. It integrates a fine-tuned sentiment analysis model and an intent "
-            "classifier trained on Amharic and English call transcripts. "
-            "Stack: Python, FastAPI, PyTorch, Whisper, PostgreSQL, Docker."
-        ),
-        keywords=["calldi", "call", "analytics", "speech", "whisper", "asr", "transcribe",
-                  "transcription", "sentiment", "intent", "90%", "manual entry", "reduction",
-                  "customer service", "call centre", "icog", "iCog-Labs"],
-        weight=2.0,
-    ),
-
-    # ── RAG & vector search ───────────────────────────────────────────────────
-    Chunk(
-        content=(
-            "Amir has built production RAG (Retrieval-Augmented Generation) systems. "
-            "He combines dense vector retrieval (FAISS, sentence-transformers) with "
-            "LLM generation (DeepSeek, GPT) for context-grounded Q&A. "
-            "He understands chunking strategies, embedding models (all-MiniLM, multilingual-e5), "
-            "re-ranking, and prompt engineering to minimise hallucination. "
-            "This very chatbot is a RAG system backed by his CV knowledge base."
-        ),
-        keywords=["rag", "retrieval", "augmented", "generation", "vector", "faiss",
-                  "embedding", "sentence-transformer", "rerank", "hallucination",
-                  "prompt", "llm", "deepseek", "gpt", "chatbot", "knowledge base",
-                  "semantic search", "similarity"],
+        keywords=["education", "degree", "university", "masters", "master", "msc", "m.s.", "bachelor",
+                  "cmu", "carnegie", "mellon", "addis ababa", "study", "school", "graduate", "ትምህርት"],
         weight=1.5,
     ),
 
-    # ── Python ───────────────────────────────────────────────────────────────
+    # ── 10 Academy ────────────────────────────────────────────────────────────
     Chunk(
         content=(
-            "Python is Amir's primary language (proficiency 5/5, Expert). "
-            "He uses it daily for Flask and FastAPI backends, SQLAlchemy ORM, "
-            "async programming, data pipelines, and ML/NLP research. "
-            "3+ years of production Python including type annotations, packaging, "
-            "pytest, and CI/CD integration."
+            "At 10 Academy (AI Agent Systems Engineer, 02/2026–present, remote) Amir built 9 production-grade "
+            "AI agent systems across evaluation, orchestration, and data engineering. He designed centralized "
+            "orchestration patterns using LangGraph StateGraph with fan-out/fan-in parallelism, published a "
+            "250-task domain-specific benchmark on HuggingFace with a SimPO-trained judge model, and achieved "
+            "35.2% pass@1 on DataAgentBench through 3-layer context engineering with zero fine-tuning."
         ),
-        keywords=["python", "flask", "fastapi", "sqlalchemy", "async", "backend",
-                  "language", "programming", "expert", "proficiency"],
-        weight=1.0,
+        keywords=["10 academy", "academy", "current", "now", "agent", "agents", "agentic", "langgraph",
+                  "orchestration", "stategraph", "fan-out", "parallel", "9", "systems"],
+        weight=1.8,
     ),
 
-    # ── Dart / Flutter ───────────────────────────────────────────────────────
+    # ── Oracle Forge ──────────────────────────────────────────────────────────
     Chunk(
         content=(
-            "Dart (proficiency 4/5, Advanced) is Amir's mobile language, used with Flutter. "
-            "At A2SV he shipped cross-platform health-tech and ed-tech apps used by 5k+ students "
-            "across Africa. He contributed to open-source Flutter packages and integrated "
-            "Firebase, REST APIs, and BLoC state management."
+            "Oracle Forge is a natural-language data analytics agent evaluated on DataAgentBench "
+            "(54 queries, 12 datasets, 9 domains). It uses 3-layer knowledge-base injection — schema hints, "
+            "then domain knowledge, then a corrections memory — and reaches 35.2% pass@1 against a 54.3% SOTA "
+            "ceiling purely through context engineering, without fine-tuning. Repo: github.com/IbnuEyni/oracle-forge."
         ),
-        keywords=["dart", "flutter", "mobile", "cross-platform", "a2sv", "app",
-                  "bloc", "firebase", "advanced"],
-        weight=1.0,
+        keywords=["oracle", "forge", "dataagentbench", "pass@1", "35.2", "analytics", "text-to-sql",
+                  "sql", "context engineering", "natural language", "data agent", "benchmark"],
+        weight=2.0,
     ),
 
-    # ── Java ─────────────────────────────────────────────────────────────────
+    # ── Tenacious Sales Bench ─────────────────────────────────────────────────
     Chunk(
         content=(
-            "Amir has working knowledge of Java (proficiency 3/5, Intermediate) from "
-            "academic projects and A2SV competitive-programming. Comfortable with OOP, "
-            "collections, and Spring Boot basics."
+            "Tenacious Sales Bench is an agent evaluation benchmark of 250 tasks covering signal grounding, "
+            "tone consistency, resource honesty, and workflow correctness, built from real Conversion Engine "
+            "failure traces. Amir trained a judge model with SimPO and published both the dataset "
+            "(shuaibam/tenacious-bench-v0.1) and the judge models on HuggingFace."
         ),
-        keywords=["java", "spring", "spring boot", "oop", "algorithm", "competitive"],
-        weight=0.8,
+        keywords=["tenacious", "bench", "benchmark", "evaluation", "eval", "simpo", "judge", "250",
+                  "huggingface", "dataset", "preference", "llm-as-judge"],
+        weight=2.0,
     ),
 
-    # ── AI / ML general ──────────────────────────────────────────────────────
+    # ── Conversion Engine ─────────────────────────────────────────────────────
     Chunk(
         content=(
-            "Amir's AI/ML stack: PyTorch (Advanced), TensorFlow (Intermediate), "
-            "HuggingFace Transformers (Advanced), scikit-learn, NLTK, spaCy. "
-            "He has experience with model fine-tuning, evaluation metrics (F1, BLEU, WER), "
-            "dataset curation, and deploying models as REST APIs with FastAPI."
+            "Conversion Engine is an automated lead-generation system. A 5-signal enrichment pipeline "
+            "(Crunchbase, job posts, layoffs, leadership changes, AI-maturity scoring) feeds ICP "
+            "classification, signal-grounded email composition, multi-turn conversation management, and CRM "
+            "sync. A centralized state machine moves each lead NEW → EMAILED → REPLIED → QUALIFIED → BOOKED. "
+            "Integrations include HubSpot, Resend, Cal.com, and Langfuse."
         ),
-        keywords=["pytorch", "tensorflow", "scikit", "nltk", "spacy", "model",
-                  "training", "evaluation", "f1", "bleu", "metrics", "deploy",
-                  "machine learning", "ml", "ai", "deep learning"],
+        keywords=["conversion", "engine", "lead", "leads", "sales", "outreach", "email", "icp",
+                  "enrichment", "crunchbase", "state machine", "crm", "hubspot", "cal.com", "resend"],
+        weight=2.0,
+    ),
+
+    # ── Automaton Auditor ─────────────────────────────────────────────────────
+    Chunk(
+        content=(
+            "Automaton Auditor is a 7-agent 'Digital Courtroom' for code auditing: 3 detective agents "
+            "(AST analysis, PDF parsing, vision-based diagram reading), 3 judge personas (Prosecutor, Defense, "
+            "Tech Lead), and a deterministic synthesis layer. Using LangGraph fan-out/fan-in parallelism it "
+            "audits a repository in 45 seconds for about $0.02."
+        ),
+        keywords=["automaton", "auditor", "audit", "courtroom", "judge", "detective", "code review",
+                  "multi-agent", "45 seconds", "cost", "gemini"],
+        weight=2.0,
+    ),
+
+    # ── The Ledger ────────────────────────────────────────────────────────────
+    Chunk(
+        content=(
+            "The Ledger is a CQRS / Event-Sourcing backend: a PostgreSQL event store with a cryptographic "
+            "audit chain, an MCP server exposing 9 tools and 6 resources, counterfactual what-if analysis, "
+            "and 166 tests."
+        ),
+        keywords=["ledger", "cqrs", "event sourcing", "event store", "mcp", "audit chain", "financial",
+                  "counterfactual", "postgresql", "tests"],
+        weight=1.8,
+    ),
+
+    # ── Client projects ───────────────────────────────────────────────────────
+    Chunk(
+        content=(
+            "Client projects (Flutter + FastAPI): Biiftuu is a restaurant ordering, loyalty, and reservations "
+            "app with a Flutter client, FastAPI backend, and Next.js admin — trilingual (English, Amharic, "
+            "Afan Oromo) and Dockerized. Kebena Heritage & Connect is an offline-first cultural app (Isar) with "
+            "an AI text-to-speech backend, Cloudflare R2 storage, and push notifications. He also built the "
+            "Dr. Abdi Specialty Dental Clinic management system (Django, PostgreSQL, Google Cloud Storage)."
+        ),
+        keywords=["client", "freelance", "biiftuu", "restaurant", "kebena", "heritage", "flutter",
+                  "fastapi", "mobile", "app", "dental", "clinic", "oromo", "trilingual", "offline"],
+        weight=1.6,
+    ),
+
+    # ── Backend / NextGen ─────────────────────────────────────────────────────
+    Chunk(
+        content=(
+            "As Back-end Developer Project Lead at NextGen Solutions (Dallas, remote, 07/2025–01/2026) Amir led "
+            "the backend lifecycle from architecture to deployment using AWS Cognito, App Runner, ECR, and "
+            "Docker. His backend stack: Python (advanced), FastAPI, Flask, Django, Node.js; PostgreSQL, Neo4j, "
+            "MongoDB, DynamoDB; CI/CD and Git."
+        ),
+        keywords=["backend", "nextgen", "lead", "aws", "cognito", "app runner", "ecr", "docker", "api",
+                  "fastapi", "flask", "django", "node", "cloud", "deployment"],
         weight=1.2,
     ),
 
-    # ── Backend & infrastructure ──────────────────────────────────────────────
+    # ── ReiSearch / CRM automation ────────────────────────────────────────────
     Chunk(
         content=(
-            "As Backend Project Lead at NextGen Solutions, Amir led 4 engineers building "
-            "REST APIs for 10k+ daily active users. He migrated a monolith to microservices "
-            "(40% latency reduction), set up CI/CD with GitHub Actions, and managed "
-            "PostgreSQL, Redis, and AWS (EC2, S3, RDS) with Docker and docker-compose."
+            "At ReiSearch (API Integration & Automation Specialist, Wyoming, remote, 11/2024–06/2025) Amir "
+            "built an automated CRM integration pipeline connecting GoHighLevel and Home Depot. It reduced "
+            "manual data entry by 90% and improved lead generation by 30%."
         ),
-        keywords=["backend", "api", "rest", "microservices", "postgresql", "redis",
-                  "docker", "aws", "ci/cd", "lead", "nextgen", "scalable",
-                  "github actions", "ec2", "s3", "rds"],
-        weight=1.0,
+        keywords=["reisearch", "gohighlevel", "home depot", "crm", "integration", "automation", "90%",
+                  "manual entry", "lead generation", "30%", "pipeline"],
+        weight=1.8,
     ),
 
-    # ── SkillBridge project ───────────────────────────────────────────────────
+    # ── iCog-Labs / RAG ───────────────────────────────────────────────────────
     Chunk(
         content=(
-            "SkillBridge is an AI-powered job-skill matching platform Amir built at A2SV. "
-            "It uses a recommendation engine to match job seekers with learning resources, "
-            "with real-time progress tracking and employer dashboards. "
-            "Scaled to 1,000+ active users. "
-            "Stack: Flask, PostgreSQL, React, Redis, Docker."
+            "At iCog-Labs (AI Developer, Addis Ababa, 03/2024–10/2024) Amir built RAG-based search engines and "
+            "a Neo4j recommendation system, improving retrieval accuracy by 40%, and enhanced a wellness "
+            "chatbot with conversational AI, increasing user retention by 15%. He works with RAG, LangChain, "
+            "OpenAI, Gemini, and Groq APIs."
         ),
-        keywords=["skillbridge", "skill bridge", "job", "matching", "recommendation",
-                  "1000", "users", "a2sv", "platform"],
-        weight=1.5,
+        keywords=["icog", "icog-labs", "rag", "retrieval", "search", "neo4j", "recommendation",
+                  "chatbot", "wellness", "40%", "retention", "vector", "llm"],
+        weight=1.6,
     ),
 
-    # ── AI Virtual Tour Guide ─────────────────────────────────────────────────
+    # ── EAII / Amharic NLP ────────────────────────────────────────────────────
     Chunk(
         content=(
-            "AI-Powered Virtual Tour Guide: a conversational AI for museums and heritage sites "
-            "using GPT-based NLP and computer vision for context-aware narration. "
-            "Supports voice interaction and multi-language output including Amharic. "
-            "Stack: FastAPI, OpenAI API, PyTorch, Flutter, Firebase."
+            "At the Ethiopian Artificial Intelligence Institute (AI Researcher, 04/2023–03/2024) Amir refined "
+            "facial recognition systems (+10% accuracy) and Amharic NLP models (12% lower word error rate) for "
+            "conversational AI. On HuggingFace (shuaibam) he has published an Amharic hate-speech detection "
+            "model (mBERT) and an Amharic–English transcriber including a Vosk speech model."
         ),
-        keywords=["tour", "guide", "museum", "heritage", "voice", "narration",
-                  "computer vision", "multilingual", "amharic voice"],
+        keywords=["amharic", "nlp", "eaii", "institute", "research", "researcher", "facial", "face",
+                  "recognition", "wer", "word error rate", "speech", "asr", "mbert", "vosk", "አማርኛ", "ቋንቋ"],
+        weight=1.8,
+    ),
+
+    # ── A2SV / SkillBridge ────────────────────────────────────────────────────
+    Chunk(
+        content=(
+            "At A2SV (Flutter Developer, 11/2021–04/2023) Amir architected and launched SkillBridge, an "
+            "educational platform built with Flutter and Firebase that scaled to 1,000+ users with offline "
+            "support and AI-powered feedback. He used BLoC state management and engineered a hybrid exam "
+            "architecture (local vs. backend evaluation) for country-specific scoring in Ethiopia and Rwanda, "
+            "cutting data response time by 60%."
+        ),
+        keywords=["a2sv", "skillbridge", "skill bridge", "flutter", "dart", "mobile", "bloc", "firebase",
+                  "exam", "education", "1000", "users", "60%", "offline"],
+        weight=1.6,
+    ),
+
+    # ── Skills ────────────────────────────────────────────────────────────────
+    Chunk(
+        content=(
+            "Skills — AI/Agents: LangChain, LangGraph, OpenAI API, Gemini API, Groq, HuggingFace Transformers. "
+            "Patterns: multi-agent orchestration, RAG, CQRS/Event Sourcing, context engineering, evaluation "
+            "design. Backend: Python (advanced), FastAPI, Flask, Django, Node.js. Data: PostgreSQL, Neo4j, "
+            "MongoDB, DynamoDB, NetworkX, Pydantic. Cloud/DevOps: AWS (Cognito, App Runner, ECR), Docker, Git, "
+            "CI/CD. Integrations: GoHighLevel, HubSpot, Resend, Cal.com, Langfuse, LangSmith."
+        ),
+        keywords=["skills", "stack", "tech", "technologies", "tools", "python", "languages", "frameworks",
+                  "patterns", "know", "proficient", "expertise"],
         weight=1.2,
-    ),
-
-    # ── Certifications ────────────────────────────────────────────────────────
-    Chunk(
-        content=(
-            "Certifications: AWS Certified Developer – Associate (2023), "
-            "TensorFlow Developer Certificate – Google (2022), "
-            "A2SV Software Engineering Programme (2023)."
-        ),
-        keywords=["certification", "certificate", "aws", "tensorflow", "google",
-                  "a2sv", "credential", "certified"],
-        weight=0.8,
     ),
 
     # ── Bilingual / Amharic identity ──────────────────────────────────────────
     Chunk(
         content=(
-            "ሹዓይብ ሶፍትዌር እና AI ኢንጂነር ነው። በፓይዘን፣ ፍላስክ፣ ፍላተር እና NLP ልምድ አለው። "
-            "በiCog-Labs የአማርኛ NLP ሞዴሎችን አሰልጥኗል። "
-            "SkillBridge እና AI Virtual Tour Guide ፕሮጀክቶችን ሰርቷል። "
+            "አሚር (ሹዓይብ) በኪጋሊ የሚገኝ የAI ኢንጂነር ነው። በመልቲ-ኤጀንት ሲስተሞች፣ በግምገማ ቤንችማርኮች እና በአውቶሜሽን ላይ ይሰራል። "
+            "በ10 Academy በ12 ሳምንታት 9 የAI ኤጀንት ሲስተሞችን ገንብቷል። "
+            "ከካርኔጊ ሜሎን ዩኒቨርሲቲ አፍሪካ በAI ማስተርስ ዲግሪ አለው። "
             "Amir is bilingual — he can discuss his technical work in both English and Amharic."
         ),
-        keywords=["amharic", "አማርኛ", "ሹዓይብ", "ኢንጂነር", "bilingual",
+        keywords=["amharic", "አማርኛ", "ሹዓይብ", "አሚር", "ኢንጂነር", "bilingual",
                   "ethiopian", "ethiopia", "ኢትዮጵያ", "geez"],
         weight=1.5,
     ),

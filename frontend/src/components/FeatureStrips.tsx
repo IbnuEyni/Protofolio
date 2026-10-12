@@ -44,13 +44,14 @@ function IdentityStrip() {
           <h2 className="text-5xl sm:text-6xl font-extrabold tracking-tight text-white leading-none">
             Amir
             <span className="block text-2xl sm:text-3xl font-medium text-indigo-400 mt-2 tracking-normal">
-              Software &amp; AI Engineer
+              AI Engineer
             </span>
           </h2>
+          <p className="mt-3 text-xs text-gray-500 tracking-wide">Kigali, Rwanda · M.S. AI, Carnegie Mellon University Africa</p>
         </div>
         <div className="md:max-w-sm text-gray-400 text-sm leading-relaxed">
-          Building scalable backend systems and intelligent applications —
-          from REST APIs and microservices to NLP pipelines and AI-powered products.
+          I build multi-agent systems, evaluation benchmarks, and production automation pipelines —
+          from LangGraph orchestration and RAG to benchmarks published on HuggingFace.
           <div className="mt-4 flex flex-wrap gap-3">
             <a href="#projects" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors">
               View Projects
@@ -71,10 +72,10 @@ function IdentityStrip() {
 
 // ── 02 Impact ─────────────────────────────────────────────────────────────────
 const STATS = [
-  { value: "4+",    label: "Years experience",   color: "text-indigo-400" },
-  { value: "2k+",   label: "Users impacted",      color: "text-violet-400" },
-  { value: "5",     label: "Companies",           color: "text-cyan-400"   },
-  { value: "1k+",   label: "SkillBridge learners",color: "text-emerald-400"},
+  { value: "9",     label: "Agent systems shipped in 12 weeks", color: "text-indigo-400"  },
+  { value: "35.2%", label: "pass@1 on DataAgentBench",          color: "text-violet-400"  },
+  { value: "250",   label: "Benchmark tasks on HuggingFace",    color: "text-cyan-400"    },
+  { value: "90%",   label: "Less manual CRM data entry",        color: "text-emerald-400" },
 ];
 
 function ImpactStrip() {
@@ -85,8 +86,8 @@ function ImpactStrip() {
         <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-6">
           {STATS.map((s) => (
             <div key={s.label}>
-              <p className={`text-4xl font-extrabold leading-none ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-gray-500 mt-1.5">{s.label}</p>
+              <p className={`text-4xl font-extrabold leading-none tabular-nums ${s.color}`}>{s.value}</p>
+              <p className="text-xs text-gray-500 mt-1.5 leading-snug">{s.label}</p>
             </div>
           ))}
         </div>
@@ -97,11 +98,12 @@ function ImpactStrip() {
 
 // ── 03 Experience ─────────────────────────────────────────────────────────────
 const ROLES = [
-  { role: "Backend Project Lead",       company: "NextGen Solutions",              period: "2025 — Present",     accent: "bg-indigo-500",  text: "text-indigo-400"  },
-  { role: "Flutter Developer",          company: "A2SV",                           period: "2024 — Present",     accent: "bg-violet-500",  text: "text-violet-400"  },
-  { role: "API Integration Specialist", company: "Calldi",                         period: "Dec 2024 — Jul 2025",accent: "bg-emerald-500", text: "text-emerald-400" },
-  { role: "AI Developer",               company: "iCog-Labs",                      period: "Aug — Dec 2024",     accent: "bg-cyan-500",    text: "text-cyan-400"    },
-  { role: "AI Researcher",              company: "Ethiopian AI Institute",         period: "2023 — 2024",        accent: "bg-amber-500",   text: "text-amber-400"   },
+  { role: "AI Agent Systems Engineer",         company: "10 Academy",             period: "Feb 2026 — Present",  accent: "bg-indigo-500",  text: "text-indigo-400"  },
+  { role: "Back-end Developer Project Lead",   company: "NextGen Solutions",      period: "Jul 2025 — Jan 2026", accent: "bg-violet-500",  text: "text-violet-400"  },
+  { role: "API Integration & Automation",      company: "ReiSearch",              period: "Nov 2024 — Jun 2025", accent: "bg-emerald-500", text: "text-emerald-400" },
+  { role: "AI Developer",                      company: "iCog-Labs",              period: "Mar — Oct 2024",      accent: "bg-cyan-500",    text: "text-cyan-400"    },
+  { role: "AI Researcher",                     company: "Ethiopian AI Institute", period: "Apr 2023 — Mar 2024", accent: "bg-amber-500",   text: "text-amber-400"   },
+  { role: "Flutter Developer",                 company: "A2SV",                   period: "Nov 2021 — Apr 2023", accent: "bg-pink-500",    text: "text-pink-400"    },
 ];
 
 function ExperienceStrip() {
@@ -111,13 +113,13 @@ function ExperienceStrip() {
         <Label n="03" text="Experience" color="text-violet-400" />
         <div className="flex-1 flex flex-col divide-y divide-gray-800/60">
           {ROLES.map((r) => (
-            <div key={r.role} className="flex items-center justify-between gap-4 py-3 group">
-              <div className="flex items-center gap-3">
+            <div key={r.company} className="flex items-center justify-between gap-4 py-3 group">
+              <div className="flex items-center gap-3 min-w-0">
                 <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${r.accent}`} />
-                <span className="text-sm font-semibold text-white group-hover:text-white/90">{r.role}</span>
-                <span className={`text-xs font-medium ${r.text} hidden sm:inline`}>{r.company}</span>
+                <span className="text-sm font-semibold text-white group-hover:text-white/90 truncate">{r.role}</span>
+                <span className={`text-xs font-medium ${r.text} hidden sm:inline whitespace-nowrap`}>{r.company}</span>
               </div>
-              <span className="text-xs text-gray-600 whitespace-nowrap">{r.period}</span>
+              <span className="text-xs text-gray-600 whitespace-nowrap tabular-nums">{r.period}</span>
             </div>
           ))}
         </div>
@@ -128,10 +130,10 @@ function ExperienceStrip() {
 
 // ── 04 Skills ─────────────────────────────────────────────────────────────────
 const SKILL_GROUPS = [
-  { category: "Languages",  color: "bg-indigo-500", text: "text-indigo-300", items: ["Python", "TypeScript", "Dart", "SQL", "Java"] },
-  { category: "Frameworks", color: "bg-violet-500", text: "text-violet-300", items: ["Flask", "FastAPI", "Django", "Next.js", "Flutter", "Spring Boot"] },
-  { category: "AI / ML",    color: "bg-cyan-500",   text: "text-cyan-300",   items: ["PyTorch", "HuggingFace", "LangChain", "LangGraph", "RAG", "NLP"] },
-  { category: "Infra",      color: "bg-emerald-500",text: "text-emerald-300",items: ["PostgreSQL", "Docker", "Redis", "GCP", "AWS"] },
+  { category: "AI / Agents",  color: "bg-indigo-500",  text: "text-indigo-300",  items: ["LangGraph", "LangChain", "OpenAI API", "Gemini API", "Groq", "HuggingFace"] },
+  { category: "Patterns",     color: "bg-violet-500",  text: "text-violet-300",  items: ["Multi-agent orchestration", "RAG", "Context engineering", "Evaluation design", "CQRS / Event Sourcing"] },
+  { category: "Backend & Data", color: "bg-cyan-500",  text: "text-cyan-300",    items: ["Python", "FastAPI", "Django", "Node.js", "PostgreSQL", "Neo4j", "MongoDB", "DynamoDB"] },
+  { category: "Cloud & Integrations", color: "bg-emerald-500", text: "text-emerald-300", items: ["AWS", "Docker", "CI/CD", "GoHighLevel", "HubSpot", "Langfuse", "LangSmith"] },
 ];
 
 function SkillsStrip() {
@@ -163,10 +165,10 @@ function SkillsStrip() {
 
 // ── 05 Projects ───────────────────────────────────────────────────────────────
 const PROJECTS = [
-  { title: "Brownfield Cartographer",        desc: "LLM-driven codebase knowledge graph with PageRank & data lineage",  stack: ["Python", "LangChain", "NetworkX"], accent: "text-emerald-400", dot: "bg-emerald-500" },
-  { title: "Automaton Auditor",              desc: "Parallel multi-agent judicial code auditing — 2.5× faster",         stack: ["LangGraph", "Gemini", "Pydantic"],  accent: "text-violet-400", dot: "bg-violet-500"  },
-  { title: "Dr. Abdi Dental Clinic",         desc: "Production clinic management with RBAC & GCS storage",              stack: ["Django", "PostgreSQL", "Docker"],   accent: "text-cyan-400",   dot: "bg-cyan-500"    },
-  { title: "Document Intelligence Refinery", desc: "5-stage agentic pipeline for enterprise dark data elimination",      stack: ["Gemini Vision", "RAG", "Docling"],  accent: "text-indigo-400", dot: "bg-indigo-500"  },
+  { title: "Oracle Forge",          desc: "NL data-analytics agent — 35.2% pass@1 on DataAgentBench with zero fine-tuning", stack: ["LangGraph", "Context Eng.", "SQL"],     accent: "text-indigo-400",  dot: "bg-indigo-500"  },
+  { title: "Tenacious Sales Bench", desc: "250-task agent benchmark + SimPO-trained judge, published on HuggingFace",        stack: ["SimPO", "HuggingFace", "Eval"],        accent: "text-cyan-400",    dot: "bg-cyan-500"    },
+  { title: "Conversion Engine",     desc: "5-signal lead enrichment → grounded outreach → CRM, as one state machine",        stack: ["LangGraph", "HubSpot", "Cal.com"],     accent: "text-emerald-400", dot: "bg-emerald-500" },
+  { title: "Automaton Auditor",     desc: "7-agent “Digital Courtroom” — audits a repo in 45 s for $0.02",                   stack: ["LangGraph", "Gemini", "Pydantic"],     accent: "text-violet-400",  dot: "bg-violet-500"  },
 ];
 
 function ProjectsStrip() {
@@ -176,7 +178,7 @@ function ProjectsStrip() {
         <Label n="05" text="Projects" color="text-indigo-400" />
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {PROJECTS.map((p) => (
-            <div key={p.title} className="group flex gap-3 p-4 rounded-xl border border-gray-800/60 hover:border-gray-700 bg-gray-900/30 hover:bg-gray-900/60 transition-all duration-200">
+            <a href="#projects" key={p.title} className="group flex gap-3 p-4 rounded-xl border border-gray-800/60 hover:border-gray-700 bg-gray-900/30 hover:bg-gray-900/60 transition-all duration-200">
               <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${p.dot}`} />
               <div>
                 <p className={`text-sm font-semibold ${p.accent}`}>{p.title}</p>
@@ -187,6 +189,33 @@ function ProjectsStrip() {
                   ))}
                 </div>
               </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </Strip>
+  );
+}
+
+// ── 06 Education ──────────────────────────────────────────────────────────────
+const EDUCATION = [
+  { degree: "M.S. in Artificial Intelligence",                                   school: "Carnegie Mellon University Africa", year: "2026", accent: "text-indigo-400" },
+  { degree: "B.S. in Software Engineering & Computing Technologies (AI Major)",  school: "Addis Ababa University",            year: "2024", accent: "text-violet-400" },
+];
+
+function EducationStrip() {
+  return (
+    <Strip delay={0.25}>
+      <div id="education" className="flex flex-col md:flex-row gap-8 py-12 px-2 scroll-mt-20">
+        <Label n="06" text="Education" color="text-amber-400" />
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {EDUCATION.map((e) => (
+            <div key={e.school} className="flex items-start justify-between gap-4 p-4 rounded-xl border border-gray-800/60 bg-gray-900/30">
+              <div>
+                <p className="text-sm font-semibold text-white leading-snug">{e.degree}</p>
+                <p className={`text-xs font-medium mt-1 ${e.accent}`}>{e.school}</p>
+              </div>
+              <span className="text-xs text-gray-600 tabular-nums">{e.year}</span>
             </div>
           ))}
         </div>
@@ -208,6 +237,8 @@ export default function FeatureStrips() {
       <SkillsStrip />
       <Divider />
       <ProjectsStrip />
+      <Divider />
+      <EducationStrip />
       <Divider />
     </div>
   );

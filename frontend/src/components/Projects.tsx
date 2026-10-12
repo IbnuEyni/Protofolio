@@ -21,54 +21,70 @@ const TAG_PALETTE: Record<string, string> = {
   uv:            "bg-lime-500/10 text-lime-300 border-lime-500/20",
   "Event Sourcing":"bg-indigo-500/10 text-indigo-300 border-indigo-500/20",
   CQRS:          "bg-indigo-500/10 text-indigo-300 border-indigo-500/20",
+  MCP:           "bg-indigo-500/10 text-indigo-300 border-indigo-500/20",
+  "Context Engineering": "bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-500/20",
+  Evaluation:    "bg-teal-500/10 text-teal-300 border-teal-500/20",
+  SimPO:         "bg-teal-500/10 text-teal-300 border-teal-500/20",
+  "LLM-as-Judge":"bg-teal-500/10 text-teal-300 border-teal-500/20",
+  HuggingFace:   "bg-yellow-500/10 text-yellow-300 border-yellow-500/20",
+  Flutter:       "bg-sky-500/10 text-sky-300 border-sky-500/20",
+  FastAPI:       "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
 };
 
 const defaultTag = "bg-gray-700/40 text-gray-400 border-gray-600/30";
 
-// ── Project domain icons (SVG inline) ────────────────────────────────────────
-const DOMAIN_ICONS: Record<string, JSX.Element> = {
-  "Brownfield Cartographer": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503-10.498l4.875 2.437c.381.19.622.58.622 1.006V17.25a1.125 1.125 0 01-.621 1.006l-4.875 2.437a1.125 1.125 0 01-1.008 0l-4.875-2.437A1.125 1.125 0 014.5 17.25V9.375c0-.426.24-.816.622-1.006l4.875-2.437a1.125 1.125 0 011.006 0z" />
-    </svg>
-  ),
-  "Automaton Auditor": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.97zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.97z" />
-    </svg>
-  ),
-  "Document Intelligence Refinery": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-    </svg>
-  ),
-  "Immutable Financial Ledger": (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-    </svg>
-  ),
+// ── Per-project theme: accent colour + heroicons outline path ────────────────
+type Accent = "indigo" | "violet" | "cyan" | "emerald" | "amber" | "pink" | "sky";
+
+const ACCENTS: Record<Accent, { gradient: string; accent: string; glow: string }> = {
+  indigo:  { gradient: "from-indigo-500/20 via-blue-500/10 to-transparent",    accent: "text-indigo-400 border-indigo-500/30 group-hover:border-indigo-400/60",    glow: "shadow-indigo-500/10"  },
+  violet:  { gradient: "from-violet-500/20 via-fuchsia-500/10 to-transparent", accent: "text-violet-400 border-violet-500/30 group-hover:border-violet-400/60",    glow: "shadow-violet-500/10"  },
+  cyan:    { gradient: "from-cyan-500/20 via-sky-500/10 to-transparent",       accent: "text-cyan-400 border-cyan-500/30 group-hover:border-cyan-400/60",          glow: "shadow-cyan-500/10"    },
+  emerald: { gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",   accent: "text-emerald-400 border-emerald-500/30 group-hover:border-emerald-400/60", glow: "shadow-emerald-500/10" },
+  amber:   { gradient: "from-amber-500/20 via-orange-500/10 to-transparent",   accent: "text-amber-400 border-amber-500/30 group-hover:border-amber-400/60",       glow: "shadow-amber-500/10"   },
+  pink:    { gradient: "from-pink-500/20 via-rose-500/10 to-transparent",      accent: "text-pink-400 border-pink-500/30 group-hover:border-pink-400/60",          glow: "shadow-pink-500/10"    },
+  sky:     { gradient: "from-sky-500/20 via-blue-500/10 to-transparent",       accent: "text-sky-400 border-sky-500/30 group-hover:border-sky-400/60",             glow: "shadow-sky-500/10"     },
 };
 
-const DOMAIN_GRADIENTS: Record<string, string> = {
-  "Brownfield Cartographer":        "from-emerald-500/20 via-teal-500/10 to-transparent",
-  "Automaton Auditor":              "from-violet-500/20 via-fuchsia-500/10 to-transparent",
-  "Document Intelligence Refinery": "from-cyan-500/20 via-sky-500/10 to-transparent",
-  "Immutable Financial Ledger":     "from-indigo-500/20 via-blue-500/10 to-transparent",
+const ICON_PATHS = {
+  database: "M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125",
+  chart:    "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z",
+  funnel:   "M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z",
+  scale:    "M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.97zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.97z",
+  lock:     "M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z",
+  bag:      "M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z",
+  globe:    "M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418",
+  map:      "M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z",
+  doc:      "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z",
+  heart:    "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z",
+  language: "M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802",
+  camera:   "M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z",
+} as const;
+
+const PROJECT_THEME: Record<string, { color: Accent; icon: keyof typeof ICON_PATHS }> = {
+  "Oracle Forge":                               { color: "indigo",  icon: "database" },
+  "Tenacious Sales Bench":                      { color: "cyan",    icon: "chart"    },
+  "Conversion Engine":                          { color: "emerald", icon: "funnel"   },
+  "Automaton Auditor":                          { color: "violet",  icon: "scale"    },
+  "The Ledger":                                 { color: "sky",     icon: "lock"     },
+  "Biiftuu":                                    { color: "amber",   icon: "bag"      },
+  "Kebena Heritage & Connect":                  { color: "pink",    icon: "globe"    },
+  "Brownfield Cartographer":                    { color: "emerald", icon: "map"      },
+  "Document Intelligence Refinery":             { color: "cyan",    icon: "doc"      },
+  "Dr. Abdi Specialty Dental Clinic":           { color: "sky",     icon: "heart"    },
+  "Amharic Speech & Language Models":           { color: "amber",   icon: "language" },
+  "AI-Powered Multilingual Virtual Tour Guide": { color: "violet",  icon: "camera"   },
 };
 
-const DOMAIN_ACCENT: Record<string, string> = {
-  "Brownfield Cartographer":        "text-emerald-400 border-emerald-500/30 group-hover:border-emerald-400/60",
-  "Automaton Auditor":              "text-violet-400 border-violet-500/30 group-hover:border-violet-400/60",
-  "Document Intelligence Refinery": "text-cyan-400 border-cyan-500/30 group-hover:border-cyan-400/60",
-  "Immutable Financial Ledger":     "text-indigo-400 border-indigo-500/30 group-hover:border-indigo-400/60",
-};
-
-const DOMAIN_GLOW: Record<string, string> = {
-  "Brownfield Cartographer":        "shadow-emerald-500/10",
-  "Automaton Auditor":              "shadow-violet-500/10",
-  "Document Intelligence Refinery": "shadow-cyan-500/10",
-  "Immutable Financial Ledger":     "shadow-indigo-500/10",
-};
+function themeFor(title: string) {
+  const t = PROJECT_THEME[title] ?? { color: "indigo" as Accent, icon: "doc" as const };
+  const icon = (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
+      <path strokeLinecap="round" strokeLinejoin="round" d={ICON_PATHS[t.icon]} />
+    </svg>
+  );
+  return { ...ACCENTS[t.color], icon };
+}
 
 // ── External link icon ───────────────────────────────────────────────────────
 function ExternalLinkIcon() {
@@ -90,9 +106,7 @@ function GitHubIcon() {
 
 // ── Expanded detail modal ─────────────────────────────────────────────────────
 function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
-  const gradient = DOMAIN_GRADIENTS[project.title] ?? "from-indigo-500/20 via-violet-500/10 to-transparent";
-  const accent   = DOMAIN_ACCENT[project.title]    ?? "text-indigo-400 border-indigo-500/30";
-  const icon     = DOMAIN_ICONS[project.title];
+  const { gradient, accent, icon } = themeFor(project.title);
 
   return (
     <motion.div
@@ -152,7 +166,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm font-medium text-white hover:bg-white/10 hover:border-white/20 transition-all"
               >
                 <ExternalLinkIcon />
-                Live Site
+                {project.url.includes("huggingface.co") ? "View on HuggingFace" : "Live Site"}
               </a>
             )}
             {project.github_url && (
@@ -175,10 +189,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
 
 // ── Featured card (large) ─────────────────────────────────────────────────────
 function FeaturedCard({ project, index, onClick }: { project: Project; index: number; onClick: () => void }) {
-  const gradient = DOMAIN_GRADIENTS[project.title] ?? "from-indigo-500/20 via-violet-500/10 to-transparent";
-  const accent   = DOMAIN_ACCENT[project.title]    ?? "text-indigo-400 border-indigo-500/30 group-hover:border-indigo-400/60";
-  const glow     = DOMAIN_GLOW[project.title]      ?? "shadow-indigo-500/10";
-  const icon     = DOMAIN_ICONS[project.title];
+  const { gradient, accent, glow, icon } = themeFor(project.title);
 
   return (
     <motion.div
@@ -240,7 +251,7 @@ function FeaturedCard({ project, index, onClick }: { project: Project; index: nu
                 className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
               >
                 <ExternalLinkIcon />
-                Live
+                {project.url.includes("huggingface.co") ? "HuggingFace" : "Live"}
               </a>
             )}
             {project.github_url && (
@@ -270,8 +281,7 @@ function FeaturedCard({ project, index, onClick }: { project: Project; index: nu
 
 // ── Compact card (grid) ───────────────────────────────────────────────────────
 function CompactCard({ project, index, onClick }: { project: Project; index: number; onClick: () => void }) {
-  const accent = DOMAIN_ACCENT[project.title] ?? "text-indigo-400 border-indigo-500/30 group-hover:border-indigo-400/60";
-  const icon   = DOMAIN_ICONS[project.title];
+  const { accent, icon } = themeFor(project.title);
 
   return (
     <motion.div
@@ -337,13 +347,14 @@ function CompactCard({ project, index, onClick }: { project: Project; index: num
 }
 
 // ── Filter pill ───────────────────────────────────────────────────────────────
-const FILTERS = ["All", "AI/ML", "Data Engineering", "Backend", "Agentic"];
+const FILTERS = ["All", "Agentic", "Evaluation", "AI/ML", "Backend", "Mobile"];
 
 const FILTER_MAP: Record<string, string[]> = {
-  "AI/ML":            ["LangChain", "LangGraph", "Gemini", "Gemini Vision", "RAG", "Vector Search", "Multi-Agent"],
-  "Data Engineering": ["PySpark", "dbt", "PostgreSQL", "Event Sourcing", "CQRS"],
-  "Backend":          ["Python", "Pydantic", "uv", "Async", "SHA-256"],
-  "Agentic":          ["LangGraph", "LangChain", "Multi-Agent", "LangSmith"],
+  "Agentic":    ["LangGraph", "LangChain", "Multi-Agent", "LangSmith", "Langfuse", "MCP", "Context Engineering"],
+  "Evaluation": ["Evaluation", "SimPO", "LLM-as-Judge"],
+  "AI/ML":      ["Gemini", "Gemini Vision", "RAG", "HuggingFace", "NLP", "PyTorch", "Speech-to-Text", "Text-to-Speech", "SimPO"],
+  "Backend":    ["FastAPI", "Django", "Flask", "PostgreSQL", "Event Sourcing", "CQRS", "Docker", "MCP"],
+  "Mobile":     ["Flutter", "Isar"],
 };
 
 function projectMatchesFilter(project: Project, filter: string): boolean {
@@ -373,7 +384,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
         className="mb-12"
       >
         <p className="text-sm font-medium text-indigo-400 tracking-widest uppercase mb-2">
-          Open Source
+          Selected Work
         </p>
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
           <div>
@@ -384,7 +395,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
               </span>
             </h2>
             <p className="text-gray-500 text-sm max-w-lg">
-              Production-grade systems spanning agentic AI, data engineering, and distributed architecture.
+              Agent systems, evaluation benchmarks, and production backends — from DataAgentBench to client apps in three languages.
             </p>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">

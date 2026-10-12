@@ -12,10 +12,9 @@ projects, and experience strictly from the CV context below.
 
 Rules:
 - Be concise (≤ 150 words) but technically accurate.
-- If asked about Amharic NLP, mention WER reduction, HuggingFace fine-tuning, \
-  and the specific models (mBERT, XLM-R, NLLB-200) where relevant.
-- If asked about Calldi, mention the 90% reduction in manual entry.
-- If asked about SkillBridge, mention the 1,000+ users.
+- Lead with concrete numbers from the context (e.g. 9 agent systems in 12 weeks, \
+  35.2% pass@1 on DataAgentBench, 250-task benchmark, 90% less manual entry).
+- Never invent metrics, employers, dates, or models that are not in the context.
 - If the answer is not in the context, say so clearly — do not hallucinate.
 - Respond in the same language the user writes in (English or Amharic).
 
@@ -30,8 +29,8 @@ SYSTEM_AM = """\
 
 ህጎች:
 - አጭር (≤ 150 ቃላት) ነገር ግን ቴክኒካዊ ትክክለኛ ይሁኑ።
-- ስለ አማርኛ NLP ሲጠየቁ፣ WER ቅነሳ፣ HuggingFace fine-tuning እና ሞዴሎቹን (mBERT, XLM-R) ይጥቀሱ።
-- ስለ Calldi ሲጠየቁ፣ 90% የእጅ ግቤት ቅነሳ ይጥቀሱ።
+- ከአውዱ ውስጥ ያሉ ቁጥሮችን ይጠቀሙ (ለምሳሌ በ12 ሳምንታት 9 የAI ኤጀንት ሲስተሞች፣ 35.2% pass@1)።
+- በአውዱ ውስጥ የሌሉ ቁጥሮችን፣ ቀጣሪዎችን ወይም ቀኖችን አይፍጠሩ።
 - መልሱ በአውዱ ውስጥ ከሌለ፣ ግልጽ ያድርጉ — አይፈጥሩ።
 - ተጠቃሚው በጻፈው ቋንቋ (አማርኛ ወይም እንግሊዝኛ) ይመልሱ።
 
@@ -39,6 +38,23 @@ SYSTEM_AM = """\
 {context}
 --- አውድ ማብቂያ ---
 """
+
+SOURCE_MARKERS = [
+    ("Oracle Forge",            "Oracle Forge"),
+    ("Tenacious Sales Bench",   "Tenacious Bench"),
+    ("Conversion Engine is",    "Conversion Engine"),
+    ("Automaton Auditor",       "Automaton Auditor"),
+    ("The Ledger",              "The Ledger"),
+    ("Client projects",         "Client Projects"),
+    ("Education:",              "Education"),
+    ("At 10 Academy",           "10 Academy"),
+    ("NextGen",                 "NextGen Solutions"),
+    ("ReiSearch",               "ReiSearch"),
+    ("iCog-Labs",               "iCog-Labs"),
+    ("Ethiopian Artificial",    "Amharic NLP"),
+    ("SkillBridge",             "SkillBridge"),
+    ("Skills —",                "Skills"),
+]
 
 
 def ask(question: str, history: list[dict] | None = None) -> dict:
@@ -81,18 +97,11 @@ def ask(question: str, history: list[dict] | None = None) -> dict:
     response.raise_for_status()
     answer = response.json()["choices"][0]["message"]["content"].strip()
 
-    # surface which chunks were used as source labels
+    # surface which chunks were used as source labels (first marker wins)
     source_labels = []
     for chunk in chunks:
-        if "Calldi" in chunk:
-            source_labels.append("Calldi")
-        elif "SkillBridge" in chunk:
-            source_labels.append("SkillBridge")
-        elif "Amharic" in chunk or "አማርኛ" in chunk:
-            source_labels.append("Amharic NLP")
-        elif "NextGen" in chunk:
-            source_labels.append("NextGen Solutions")
-        elif "A2SV" in chunk:
-            source_labels.append("A2SV")
+        label = next((lbl for marker, lbl in SOURCE_MARKERS if marker in chunk), None)
+        if label:
+            source_labels.append(label)
 
     return {"answer": answer, "lang": lang, "sources": list(dict.fromkeys(source_labels))}

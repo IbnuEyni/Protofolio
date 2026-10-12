@@ -2,39 +2,33 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useInView } from "framer-motion";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
-  PieChart, Pie, Legend,
-  AreaChart, Area,
-} from "recharts";
 
-// ── Data ────────────────────────────────────────────────────────────────────
+// ── Data (every figure is a measured result from a shipped system) ──────────
 
-const responseTimeData = [
-  { label: "Before", value: 100, fill: "#4b5563" },
-  { label: "After",  value: 40,  fill: "#6366f1" },
+const passAtOne = [
+  { label: "Oracle Forge", value: 35.2, fill: "#6366f1" },
+  { label: "SOTA ceiling", value: 54.3, fill: "#475569" },
 ];
 
-const auditSpeed = [
-  { name: "Sequential", value: 100, fill: "#1e293b" },
-  { name: "Parallel",   value: 40,  fill: "#22d3ee" },
+const AUDITOR_STAGES = [
+  { name: "Detectives", agents: ["AST analysis", "PDF parsing", "Diagram vision"] },
+  { name: "Judges",     agents: ["Prosecutor", "Defense", "Tech Lead"] },
+  { name: "Synthesis",  agents: ["Deterministic verdict"] },
 ];
 
-const growthData = [
-  { month: "M1",  users: 40  },
-  { month: "M2",  users: 120 },
-  { month: "M3",  users: 230 },
-  { month: "M4",  users: 380 },
-  { month: "M5",  users: 520 },
-  { month: "M6",  users: 680 },
-  { month: "M7",  users: 810 },
-  { month: "M8",  users: 940 },
-  { month: "M9",  users: 1050 },
+const roleImpact = [
+  { value: 90, label: "Less manual data entry",      source: "ReiSearch" },
+  { value: 60, label: "Faster data response",        source: "A2SV" },
+  { value: 40, label: "Higher retrieval accuracy",   source: "iCog-Labs" },
+  { value: 30, label: "More leads generated",        source: "ReiSearch" },
+  { value: 15, label: "Higher user retention",       source: "iCog-Labs" },
+  { value: 12, label: "Lower word error rate",       source: "EAII" },
+  { value: 10, label: "Higher face-ID accuracy",     source: "EAII" },
 ];
 
 // ── Animated bar fill ────────────────────────────────────────────────────────
 
-function AnimatedBar({ value, fill, label }: { value: number; fill: string; label: string }) {
+function AnimatedBar({ value, label, source }: { value: number; label: string; source: string }) {
   const [width, setWidth] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
@@ -47,40 +41,64 @@ function AnimatedBar({ value, fill, label }: { value: number; fill: string; labe
   }, [inView, value]);
 
   return (
-    <div ref={ref} className="space-y-1">
-      <div className="flex justify-between text-xs text-gray-400">
-        <span>{label}</span>
-        <span style={{ color: fill }} className="font-semibold">{value}%</span>
+    <div ref={ref} className="group space-y-1" title={`${label}: ${value}% · ${source}`}>
+      <div className="flex justify-between gap-3 text-xs">
+        <span className="text-gray-400 truncate">
+          {label} <span className="text-gray-600">· {source}</span>
+        </span>
+        <span className="text-gray-200 font-semibold tabular-nums">{value}%</span>
       </div>
-      <div className="h-3 rounded-full bg-gray-800 overflow-hidden">
+      <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-1000 ease-out"
-          style={{ width: `${width}%`, background: fill }}
+          className="h-full rounded-full bg-emerald-500 group-hover:bg-emerald-400 transition-all duration-1000 ease-out"
+          style={{ width: `${width}%` }}
         />
       </div>
     </div>
   );
 }
 
-// ── Custom tooltip ───────────────────────────────────────────────────────────
+// ── Pass@1 column chart (HTML bars on a 0–60% scale) ─────────────────────────
 
-function ChartTooltip({ active, payload, label, unit = "" }: any) {
-  if (!active || !payload?.length) return null;
+const AXIS_MAX = 60;
+
+function PassAtOneChart() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
   return (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-xs shadow-xl">
-      {label && <p className="text-gray-400 mb-1">{label}</p>}
-      {payload.map((p: any, i: number) => (
-        <p key={i} style={{ color: p.color ?? p.fill }} className="font-semibold">
-          {p.name ?? p.dataKey}: {p.value}{unit}
-        </p>
-      ))}
+    <div ref={ref} className="flex gap-3 h-[200px]">
+      {/* y-axis */}
+      <div className="flex flex-col justify-between text-[11px] text-gray-500 tabular-nums pb-6 text-right w-8">
+        {[60, 40, 20, 0].map((t) => <span key={t} className="leading-none">{t}%</span>)}
+      </div>
+      {/* plot */}
+      <div className="relative flex-1">
+        <div className="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none">
+          {[0, 1, 2, 3].map((i) => <div key={i} className="border-t border-dashed border-gray-800" />)}
+        </div>
+        <div className="absolute inset-x-0 top-0 bottom-6 flex items-end justify-around gap-[2px]">
+          {passAtOne.map((d) => (
+            <div key={d.label} className="group relative w-1/4 h-full flex flex-col justify-end items-center" title={`${d.label}: ${d.value}% pass@1`}>
+              <span className="text-xs font-semibold text-gray-200 mb-1 tabular-nums">{d.value}%</span>
+              <div
+                className="w-full rounded-t-[4px] transition-[height] duration-1000 ease-out group-hover:brightness-125"
+                style={{ height: inView ? `${(d.value / AXIS_MAX) * 100}%` : "0%", background: d.fill }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="absolute inset-x-0 bottom-0 h-5 flex justify-around text-[11px] text-gray-400">
+          {passAtOne.map((d) => <span key={d.label} className="w-1/4 text-center whitespace-nowrap">{d.label}</span>)}
+        </div>
+      </div>
     </div>
   );
 }
 
-// ── Animated counter ─────────────────────────────────────────────────────────
+// ── Animated counter (supports decimals and a prefix) ────────────────────────
 
-function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
+function Counter({ to, prefix = "", suffix = "", decimals = 0 }: { to: number; prefix?: string; suffix?: string; decimals?: number }) {
   const [val, setVal] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
@@ -89,15 +107,17 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
     if (!inView) return;
     const duration = 1400;
     const start = performance.now();
+    let raf = 0;
     const tick = (now: number) => {
       const p = Math.min((now - start) / duration, 1);
-      setVal(Math.round(p * to));
-      if (p < 1) requestAnimationFrame(tick);
+      setVal(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [inView, to]);
 
-  return <span ref={ref}>{val}{suffix}</span>;
+  return <span ref={ref} className="tabular-nums">{prefix}{val.toFixed(decimals)}{suffix}</span>;
 }
 
 // ── Section label ────────────────────────────────────────────────────────────
@@ -110,6 +130,13 @@ function CardLabel({ accent, children }: { accent: string; children: React.React
   );
 }
 
+const KPIS = [
+  { to: 35.2, decimals: 1, suffix: "%",  label: "pass@1 on DataAgentBench", accent: "#6366f1" },
+  { to: 45,   suffix: "s",               label: "To audit a repository",    accent: "#8b5cf6" },
+  { to: 0.02, decimals: 2, prefix: "$",  label: "Cost per audit",           accent: "#22d3ee" },
+  { to: 250,                             label: "Benchmark tasks published", accent: "#10b981" },
+];
+
 // ── Main component ───────────────────────────────────────────────────────────
 
 export default function PerformanceDashboard() {
@@ -117,7 +144,7 @@ export default function PerformanceDashboard() {
   const inView = useInView(sectionRef, { once: true, margin: "-80px" });
 
   return (
-    <section ref={sectionRef} id="performance" className="py-20">
+    <section ref={sectionRef} id="performance" className="py-20 scroll-mt-16">
 
       {/* Header */}
       <div className="mb-12 text-center">
@@ -125,27 +152,23 @@ export default function PerformanceDashboard() {
           By the Numbers
         </p>
         <h2 className="text-3xl font-bold text-white">
-          Performance &amp; Scale
+          Results, Measured
         </h2>
         <p className="mt-3 text-gray-400 max-w-xl mx-auto text-sm">
-          Real metrics from production systems — optimised for speed, accuracy, and growth.
+          Every figure below comes from a shipped system or a production role — no projections.
         </p>
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-3 gap-4 mb-12">
-        {[
-          { value: 60, suffix: "%", label: "Faster API responses", accent: "#6366f1" },
-          { value: 2, suffix: ".5×", label: "Faster audit processing", accent: "#22d3ee" },
-          { value: 1000, suffix: "+", label: "Platform users scaled", accent: "#10b981" },
-        ].map(({ value, suffix, label, accent }) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        {KPIS.map(({ label, accent, ...c }) => (
           <div
             key={label}
             className="rounded-2xl border border-gray-800 bg-gray-900/50 p-5 text-center"
             style={{ boxShadow: `0 0 0 1px ${accent}22, 0 0 24px ${accent}0d` }}
           >
-            <p className="text-3xl font-extrabold" style={{ color: accent }}>
-              {inView ? <Counter to={value} suffix={suffix} /> : `0${suffix}`}
+            <p className="text-3xl font-extrabold text-white">
+              <Counter {...c} />
             </p>
             <p className="text-xs text-gray-400 mt-1">{label}</p>
           </div>
@@ -155,134 +178,75 @@ export default function PerformanceDashboard() {
       {/* Charts grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {/* ── 1. Bar chart: Response time ─────────────────────────── */}
+        {/* ── 1. Oracle Forge vs SOTA ─────────────────────────────── */}
         <div className="rounded-2xl border border-gray-800 bg-gray-900/50 p-6 flex flex-col gap-4">
           <div>
-            <CardLabel accent="#6366f1">Dr. Abdi Specialty Dental Clinic</CardLabel>
-            <h3 className="text-white font-semibold text-sm">API Response Time</h3>
-            <p className="text-gray-500 text-xs mt-0.5">Django · Gunicorn · Nginx · GCS</p>
+            <CardLabel accent="#818cf8">Oracle Forge</CardLabel>
+            <h3 className="text-white font-semibold text-sm">DataAgentBench pass@1</h3>
+            <p className="text-gray-500 text-xs mt-0.5">54 queries · 12 datasets · 9 domains</p>
           </div>
 
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={responseTimeData} barCategoryGap="40%">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
-              <XAxis dataKey="label" tick={{ fill: "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis domain={[0, 110]} tick={{ fill: "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltip unit="%" />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
-              <Bar dataKey="value" radius={[6, 6, 0, 0]} isAnimationActive={inView} animationDuration={1200} animationEasing="ease-out">
-                {responseTimeData.map((d, i) => <Cell key={i} fill={d.fill} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <PassAtOneChart />
 
-          <div className="space-y-2 mt-auto">
-            <AnimatedBar value={100} fill="#4b5563" label="Before optimisation" />
-            <AnimatedBar value={40}  fill="#6366f1" label="After optimisation" />
-          </div>
-
-          <p className="text-indigo-400 text-xs font-semibold text-center">
-            ↓ 60% reduction in response time
+          <p className="text-gray-400 text-xs leading-relaxed mt-auto">
+            <span className="text-indigo-300 font-semibold">65% of the SOTA ceiling with zero fine-tuning</span> —
+            schema hints → domain knowledge → corrections memory.
           </p>
         </div>
 
-        {/* ── 2. Pie chart: Audit speed ─────────────────────────── */}
+        {/* ── 2. Automaton Auditor pipeline ───────────────────────── */}
         <div className="rounded-2xl border border-gray-800 bg-gray-900/50 p-6 flex flex-col gap-4">
           <div>
-            <CardLabel accent="#22d3ee">Automaton Auditor</CardLabel>
-            <h3 className="text-white font-semibold text-sm">Audit Processing Speed</h3>
-            <p className="text-gray-500 text-xs mt-0.5">Parallel multi-agent vs sequential</p>
+            <CardLabel accent="#a78bfa">Automaton Auditor</CardLabel>
+            <h3 className="text-white font-semibold text-sm">7-agent Digital Courtroom</h3>
+            <p className="text-gray-500 text-xs mt-0.5">LangGraph fan-out / fan-in</p>
           </div>
 
-          <div className="relative flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={auditSpeed}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={52}
-                  outerRadius={76}
-                  startAngle={90}
-                  endAngle={-270}
-                  dataKey="value"
-                  isAnimationActive={inView}
-                  animationBegin={200}
-                  animationDuration={1400}
-                  animationEasing="ease-out"
-                  strokeWidth={0}
-                >
-                  {auditSpeed.map((d, i) => <Cell key={i} fill={d.fill} />)}
-                </Pie>
-                <Tooltip content={<ChartTooltip unit="%" />} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute flex flex-col items-center pointer-events-none">
-              <span className="text-2xl font-extrabold text-cyan-400">
-                2.5×
-              </span>
-              <span className="text-gray-500 text-[10px]">faster</span>
-            </div>
-          </div>
-
-          <div className="flex justify-center gap-6 text-xs">
-            {auditSpeed.map((d) => (
-              <span key={d.name} className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ background: d.fill }} />
-                <span className="text-gray-400">{d.name}</span>
-              </span>
+          <div className="flex items-stretch gap-2 flex-1">
+            {AUDITOR_STAGES.map((stage, si) => (
+              <div key={stage.name} className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 text-center">{stage.name}</p>
+                  <div className="flex flex-col gap-1.5 justify-center h-full">
+                    {stage.agents.map((a) => (
+                      <div
+                        key={a}
+                        title={a}
+                        className="rounded-md border border-violet-500/30 bg-violet-500/10 px-1.5 py-1.5 text-[10px] text-violet-200 text-center leading-tight"
+                      >
+                        {a}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {si < AUDITOR_STAGES.length - 1 && <span className="text-gray-600 text-xs shrink-0">→</span>}
+              </div>
             ))}
           </div>
 
-          <p className="text-cyan-400 text-xs font-semibold text-center mt-auto">
-            LangGraph · Gemini · 3 detective + 3 judge agents
-          </p>
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-800 mt-auto">
+            <div className="text-center">
+              <p className="text-2xl font-extrabold text-white">{inView ? <Counter to={45} suffix="s" /> : "0s"}</p>
+              <p className="text-[11px] text-gray-500">per repository</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-extrabold text-white">{inView ? <Counter to={0.02} decimals={2} prefix="$" /> : "$0.00"}</p>
+              <p className="text-[11px] text-gray-500">per audit</p>
+            </div>
+          </div>
         </div>
 
-        {/* ── 3. Area chart: User growth ──────────────────────────── */}
+        {/* ── 3. Measured impact across roles ─────────────────────── */}
         <div className="rounded-2xl border border-gray-800 bg-gray-900/50 p-6 flex flex-col gap-4">
           <div>
-            <CardLabel accent="#10b981">SkillBridge · A2SV</CardLabel>
-            <h3 className="text-white font-semibold text-sm">Platform User Growth</h3>
-            <p className="text-gray-500 text-xs mt-0.5">Education platform · 1 000+ active learners</p>
+            <CardLabel accent="#34d399">Across Roles</CardLabel>
+            <h3 className="text-white font-semibold text-sm">Measured improvements</h3>
+            <p className="text-gray-500 text-xs mt-0.5">Percent change, per role</p>
           </div>
 
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={growthData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#10b981" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
-              <XAxis dataKey="month" tick={{ fill: "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#9ca3af", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltip unit=" users" />} cursor={{ stroke: "#10b981", strokeWidth: 1, strokeDasharray: "4 4" }} />
-              <Area
-                type="monotone"
-                dataKey="users"
-                stroke="#10b981"
-                strokeWidth={2.5}
-                fill="url(#growthGrad)"
-                dot={false}
-                activeDot={{ r: 4, fill: "#10b981", strokeWidth: 0 }}
-                isAnimationActive={inView}
-                animationDuration={1600}
-                animationEasing="ease-out"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-
-          <div className="flex items-end justify-between text-xs text-gray-500 mt-auto">
-            <span>Launch</span>
-            <span className="text-emerald-400 font-semibold text-sm">
-              {inView ? <Counter to={1050} suffix="+ users" /> : "0 users"}
-            </span>
+          <div className="space-y-3">
+            {roleImpact.map((r) => <AnimatedBar key={r.label} {...r} />)}
           </div>
-
-          <p className="text-emerald-400 text-xs font-semibold text-center">
-            Scalable architecture · 9-month trajectory
-          </p>
         </div>
 
       </div>

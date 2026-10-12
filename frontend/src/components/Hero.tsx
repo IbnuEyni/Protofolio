@@ -209,7 +209,7 @@ export default function Hero() {
           className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/50 backdrop-blur-sm text-xs font-medium tracking-[0.2em] uppercase text-slate-400"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          Available for opportunities
+          Available · Kigali, Rwanda
         </motion.span>
 
         {/* name */}
@@ -247,9 +247,9 @@ export default function Hero() {
           className="text-slate-400 font-light tracking-wide max-w-lg"
           style={{ fontSize: "clamp(0.85rem, 2vw, 1.05rem)" }}
         >
-          Software &amp; AI Engineer
+          AI Engineer
           <span className="mx-2 text-slate-600">|</span>
-          3+ Years Architecting Scalable Solutions
+          Multi-Agent Systems · Evaluation · Automation
         </motion.p>
 
         {/* CTA row */}
@@ -274,9 +274,9 @@ export default function Hero() {
           className="mt-20 flex gap-12 flex-wrap justify-center"
         >
           {[
-            { value: "4+",  label: "Years experience" },
-            { value: "2k+", label: "Users impacted" },
-            { value: "5",   label: "Companies" },
+            { value: "5",     label: "Years building" },
+            { value: "9",     label: "Agent systems shipped" },
+            { value: "35.2%", label: "DataAgentBench pass@1" },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <p className="text-2xl font-bold text-white tracking-tight">{s.value}</p>

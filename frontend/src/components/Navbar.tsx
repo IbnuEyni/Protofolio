@@ -6,6 +6,7 @@ const links = [
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#skills" },
+  { label: "Results", href: "#performance" },
 ];
 
 export default function Navbar() {
@@ -24,13 +25,13 @@ export default function Navbar() {
       }`}
     >
       <nav className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-        <span className="font-semibold tracking-tight text-white">Amir</span>
-        <ul className="flex gap-8">
+        <a href="#" className="font-semibold tracking-tight text-white">Amir<span className="text-indigo-400">.</span></a>
+        <ul className="flex gap-4 sm:gap-8">
           {links.map((l) => (
             <li key={l.href}>
               <a
                 href={l.href}
-                className="text-sm text-gray-400 hover:text-white transition-colors"
+                className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors"
               >
                 {l.label}
               </a>

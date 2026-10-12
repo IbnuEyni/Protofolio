@@ -147,16 +147,28 @@ def get_skills_graph():
 
     # language → frameworks/tools that depend on it
     EDGES = [
-        ("Python",     "Flask"),
         ("Python",     "FastAPI"),
-        ("Python",     "PyTorch"),
-        ("Python",     "TensorFlow"),
+        ("Python",     "Flask"),
+        ("Python",     "Django"),
+        ("Python",     "Pydantic"),
+        ("Python",     "LangChain"),
         ("Python",     "HuggingFace Transformers"),
+        ("Python",     "NetworkX"),
+        ("LangChain",  "LangGraph"),
+        ("LangChain",  "RAG"),
+        ("LangGraph",  "LangSmith"),
+        ("LangGraph",  "Langfuse"),
+        ("LangGraph",  "OpenAI API"),
+        ("LangGraph",  "Gemini API"),
+        ("LangGraph",  "Groq"),
+        ("RAG",        "Neo4j"),
         ("Dart",       "Flutter"),
-        ("Java",       "Spring Boot"),
         ("TypeScript", "Next.js"),
+        ("TypeScript", "Node.js"),
         ("SQL",        "PostgreSQL"),
-        ("Python",     "NLP"),
+        ("Docker",     "AWS"),
+        ("Docker",     "GCP"),
+        ("Git",        "CI/CD"),
     ]
 
     # collect only nodes that exist in the DB or are referenced in edges

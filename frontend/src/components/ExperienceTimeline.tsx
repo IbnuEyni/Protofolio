@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView, animate, AnimatePresence } from "framer-motion";
 import {
   Briefcase, Code2, Brain, TrendingUp, Users, Zap,
-  Clock, Star, ArrowUpRight, X, ExternalLink,
+  Clock, Star, ArrowUpRight, X, ExternalLink, Bot,
 } from "lucide-react";
 import type { Experience } from "@/lib/api";
 
@@ -14,37 +14,31 @@ type ImpactBadge = { icon: React.ReactNode; metric: string; label: string; color
 type RoleMeta    = { icon: React.ReactNode; accent: string; badges: ImpactBadge[]; company_url?: string; project_url?: string; project_label?: string };
 
 const ROLE_META: Record<string, RoleMeta> = {
+  "10 Academy": {
+    icon:   <Bot className="w-5 h-5" />,
+    accent: "indigo",
+    company_url: "https://10academy.org/",
+    badges: [
+      { icon: <Bot className="w-3.5 h-3.5" />,        metric: "9",       label: "Agent systems in 12 weeks",   color: "indigo" },
+      { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "35.2%",   label: "pass@1 on DataAgentBench",    color: "emerald" },
+      { icon: <Star className="w-3.5 h-3.5" />,       metric: "250",     label: "Benchmark tasks published",   color: "cyan" },
+    ],
+  },
   "NextGen Solutions": {
     icon:   <Briefcase className="w-5 h-5" />,
-    accent: "indigo",
-    company_url: undefined,
-    badges: [
-      { icon: <Users className="w-3.5 h-3.5" />,     metric: "10,000+", label: "Daily active users",        color: "indigo" },
-      { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "40%",     label: "Latency reduction",         color: "emerald" },
-      { icon: <Zap className="w-3.5 h-3.5" />,        metric: "4",       label: "Engineers led",             color: "violet" },
-    ],
-  },
-  "A2SV": {
-    icon:   <Code2 className="w-5 h-5" />,
     accent: "violet",
-    company_url: "https://www.a2sv.org/",
-    project_url: "https://skillbridge.academy/",
-    project_label: "SkillBridge",
     badges: [
-      { icon: <Users className="w-3.5 h-3.5" />,     metric: "5,000+",  label: "Students reached",          color: "violet" },
-      { icon: <Star className="w-3.5 h-3.5" />,       metric: "1,000+",  label: "SkillBridge users",         color: "indigo" },
-      { icon: <Code2 className="w-3.5 h-3.5" />,      metric: "3",       label: "Open-source contributions", color: "cyan" },
+      { icon: <Users className="w-3.5 h-3.5" />,      metric: "Lead",    label: "Backend, architecture → deploy", color: "violet" },
+      { icon: <Zap className="w-3.5 h-3.5" />,        metric: "AWS",     label: "Cognito · App Runner · ECR",  color: "cyan" },
     ],
   },
-  "Calldi": {
+  "ReiSearch": {
     icon:   <Zap className="w-5 h-5" />,
     accent: "emerald",
-    company_url: undefined,
-    project_url: "https://homedispo.com/",
-    project_label: "HomeDisp",
+    company_url: "https://www.reisearch.com/",
     badges: [
-      { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "90%",     label: "Manual entry reduced",      color: "emerald" },
-      { icon: <Zap className="w-3.5 h-3.5" />,        metric: "30%",     label: "Lead generation boost",     color: "cyan" },
+      { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "90%",     label: "Manual entry reduced",        color: "emerald" },
+      { icon: <Zap className="w-3.5 h-3.5" />,        metric: "30%",     label: "Lead generation boost",       color: "cyan" },
     ],
   },
   "iCog-Labs": {
@@ -52,44 +46,69 @@ const ROLE_META: Record<string, RoleMeta> = {
     accent: "cyan",
     company_url: "https://icog-labs.com/",
     badges: [
-      { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "40%",     label: "Retrieval accuracy boost",  color: "cyan" },
-      { icon: <Users className="w-3.5 h-3.5" />,      metric: "15%",     label: "User retention increase",   color: "emerald" },
-      { icon: <Brain className="w-3.5 h-3.5" />,      metric: "2",       label: "NLP models shipped",        color: "violet" },
+      { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "40%",     label: "Retrieval accuracy boost",    color: "cyan" },
+      { icon: <Users className="w-3.5 h-3.5" />,      metric: "15%",     label: "User retention increase",     color: "emerald" },
     ],
   },
   "Ethiopian Artificial Intelligence Institute": {
     icon:   <Star className="w-5 h-5" />,
-    accent: "emerald",
-    company_url: "https://aii.et/Home",
+    accent: "amber",
+    company_url: "https://aii.et/",
     badges: [
       { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "10%",     label: "Facial recognition accuracy", color: "emerald" },
-      { icon: <Brain className="w-3.5 h-3.5" />,      metric: "12%",     label: "WER reduction (Amharic NLP)", color: "cyan" },
+      { icon: <Brain className="w-3.5 h-3.5" />,      metric: "12%",     label: "Lower WER (Amharic NLP)",     color: "cyan" },
+    ],
+  },
+  "A2SV": {
+    icon:   <Code2 className="w-5 h-5" />,
+    accent: "violet",
+    company_url: "https://a2sv.org/",
+    project_url: "https://skillbridge.academy/",
+    project_label: "SkillBridge",
+    badges: [
+      { icon: <Users className="w-3.5 h-3.5" />,      metric: "1,000+",  label: "SkillBridge users",           color: "violet" },
+      { icon: <TrendingUp className="w-3.5 h-3.5" />, metric: "60%",     label: "Faster data response",        color: "emerald" },
     ],
   },
 };
+
+const DEFAULT_META: RoleMeta = { icon: <Briefcase className="w-5 h-5" />, accent: "indigo", badges: [] };
 
 const ACCENT_STYLES: Record<string, { dot: string; border: string; text: string; badge: string; glow: string; line: string }> = {
   indigo:  { dot: "bg-indigo-500",  border: "border-indigo-500/40",  text: "text-indigo-400",  badge: "bg-indigo-500/10 border-indigo-500/30 text-indigo-300",  glow: "shadow-[0_0_20px_rgba(99,102,241,0.2)]",  line: "from-indigo-500" },
   violet:  { dot: "bg-violet-500",  border: "border-violet-500/40",  text: "text-violet-400",  badge: "bg-violet-500/10 border-violet-500/30 text-violet-300",  glow: "shadow-[0_0_20px_rgba(139,92,246,0.2)]",  line: "from-violet-500" },
   cyan:    { dot: "bg-cyan-500",    border: "border-cyan-500/40",    text: "text-cyan-400",    badge: "bg-cyan-500/10 border-cyan-500/30 text-cyan-300",        glow: "shadow-[0_0_20px_rgba(34,211,238,0.2)]",  line: "from-cyan-500"   },
+  amber:   { dot: "bg-amber-500",   border: "border-amber-500/40",   text: "text-amber-400",   badge: "bg-amber-500/10 border-amber-500/30 text-amber-300",    glow: "shadow-[0_0_20px_rgba(245,158,11,0.2)]",  line: "from-amber-500"  },
   emerald: { dot: "bg-emerald-500", border: "border-emerald-500/40", text: "text-emerald-400", badge: "bg-emerald-500/10 border-emerald-500/30 text-emerald-300",glow: "shadow-[0_0_20px_rgba(16,185,129,0.2)]",  line: "from-emerald-500"},
 };
+
+// ── Date formatting: "2024-03" → "Mar 2024" ────────────────────────────────────────
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function formatDate(d: string | null): string {
+  if (!d || d === "Present") return "Present";
+  const [y, m] = d.split("-");
+  const month = MONTHS[parseInt(m, 10) - 1];
+  return month ? `${month} ${y}` : d;
+}
 
 // ── Animated counter ───────────────────────────────────────────────────────────────
 
 function AnimatedMetric({ value, triggered }: { value: string; triggered: boolean }) {
   const [display, setDisplay] = useState("0");
-  const numMatch = value.match(/[\d,]+/);
+  const numMatch = value.match(/[\d,]+(\.\d+)?/);
 
   useEffect(() => {
     if (!triggered || !numMatch) { setDisplay(value); return; }
-    const target = parseInt(numMatch[0].replace(/,/g, ""), 10);
+    const target   = parseFloat(numMatch[0].replace(/,/g, ""));
+    const decimals = numMatch[1] ? numMatch[1].length - 1 : 0;
     const prefix = value.slice(0, value.search(/[\d,]/));
     const suffix = value.slice(value.search(/[\d,]/) + numMatch[0].length);
     const ctrl   = animate(0, target, {
       duration: 1.4,
       ease: "easeOut",
-      onUpdate: (v) => setDisplay(`${prefix}${Math.round(v).toLocaleString()}${suffix}`),
+      onUpdate: (v) => setDisplay(`${prefix}${v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`),
     });
     return () => ctrl.stop();
   }, [triggered]);
@@ -120,7 +139,7 @@ function ImpactBadge({ badge, index, triggered }: { badge: ImpactBadge; index: n
 // ── Experience modal ───────────────────────────────────────────────────────────────
 
 function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => void }) {
-  const meta   = ROLE_META[exp.company] ?? ROLE_META["NextGen Solutions"];
+  const meta   = ROLE_META[exp.company] ?? DEFAULT_META;
   const accent = ACCENT_STYLES[meta.accent] ?? ACCENT_STYLES.indigo;
 
   return (
@@ -159,7 +178,7 @@ function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => voi
           </div>
           <p className="text-xs text-gray-500 mt-4 flex items-center gap-1.5">
             <Clock className="w-3 h-3" />
-            {exp.start_date} — {exp.end_date ?? "Present"}
+            {formatDate(exp.start_date)} — {formatDate(exp.end_date)}
           </p>
         </div>
 
@@ -224,43 +243,50 @@ function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => voi
 function TimelineCard({ exp, index, isLast, onOpen }: { exp: Experience; index: number; isLast: boolean; onOpen: () => void }) {
   const ref    = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px 0px" });
-  const meta   = ROLE_META[exp.company] ?? ROLE_META["NextGen Solutions"];
+  const meta   = ROLE_META[exp.company] ?? DEFAULT_META;
   const accent = ACCENT_STYLES[meta.accent] ?? ACCENT_STYLES.indigo;
   const isLeft = index % 2 === 0;
 
+  const node = (
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={inView ? { scale: 1, opacity: 1 } : {}}
+      transition={{ duration: 0.4, delay: 0.1 }}
+      className={`relative z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center
+        ${accent.dot} border-gray-900 ${accent.glow} text-white shrink-0`}
+    >
+      {meta.icon}
+    </motion.div>
+  );
+  const spine = !isLast && (
+    <motion.div
+      initial={{ scaleY: 0 }}
+      animate={inView ? { scaleY: 1 } : {}}
+      transition={{ duration: 0.8, delay: 0.3, ease: "easeInOut" }}
+      style={{ originY: 0 }}
+      className={`w-0.5 flex-1 min-h-[80px] bg-gradient-to-b ${accent.line} to-gray-800`}
+    />
+  );
+
   return (
-    <div ref={ref} className="relative grid grid-cols-[1fr_48px_1fr] items-start gap-0 mb-12 last:mb-0">
-
-      {/* left slot */}
-      <div className={`pr-6 ${isLeft ? "block" : "invisible pointer-events-none"}`}>
-        {isLeft && <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft onOpen={onOpen} />}
+    <div ref={ref}>
+      {/* mobile: spine on the left, card on the right */}
+      <div className="md:hidden grid grid-cols-[40px_1fr] gap-4 items-stretch">
+        <div className="flex flex-col items-center">{node}{spine}</div>
+        <div className="pb-10">
+          <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft={false} onOpen={onOpen} />
+        </div>
       </div>
 
-      {/* centre spine */}
-      <div className="flex flex-col items-center">
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={inView ? { scale: 1, opacity: 1 } : {}}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className={`relative z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center
-            ${accent.dot} border-gray-900 ${accent.glow} text-white shrink-0`}
-        >
-          {meta.icon}
-        </motion.div>
-        {!isLast && (
-          <motion.div
-            initial={{ scaleY: 0 }}
-            animate={inView ? { scaleY: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.3, ease: "easeInOut" }}
-            style={{ originY: 0 }}
-            className={`w-0.5 flex-1 min-h-[80px] bg-gradient-to-b ${accent.line} to-gray-800`}
-          />
-        )}
-      </div>
-
-      {/* right slot */}
-      <div className={`pl-6 ${!isLeft ? "block" : "invisible pointer-events-none"}`}>
-        {!isLeft && <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft={false} onOpen={onOpen} />}
+      {/* desktop: alternating sides */}
+      <div className="hidden md:grid relative grid-cols-[1fr_48px_1fr] items-start gap-0 mb-12">
+        <div className={`pr-6 ${isLeft ? "block" : "invisible pointer-events-none"}`}>
+          {isLeft && <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft onOpen={onOpen} />}
+        </div>
+        <div className="flex flex-col items-center self-stretch">{node}{spine}</div>
+        <div className={`pl-6 ${!isLeft ? "block" : "invisible pointer-events-none"}`}>
+          {!isLeft && <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft={false} onOpen={onOpen} />}
+        </div>
       </div>
     </div>
   );
@@ -304,7 +330,7 @@ function CardContent({
       {/* date */}
       <p className="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
         <Clock className="w-3 h-3" />
-        {exp.start_date} — {exp.end_date ?? "Present"}
+        {formatDate(exp.start_date)} — {formatDate(exp.end_date)}
       </p>
 
       {/* description */}

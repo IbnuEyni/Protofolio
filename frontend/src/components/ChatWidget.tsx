@@ -12,9 +12,9 @@ type History = { role: "user" | "assistant"; content: string };
 // ── Suggestions ───────────────────────────────────────────────────────────────
 
 const SUGGESTIONS = [
-  "What is your Amharic NLP experience?",
-  "Tell me about Calldi and the 90% reduction.",
-  "How did you reduce Word Error Rate?",
+  "What are you building at 10 Academy?",
+  "How did Oracle Forge reach 35.2% pass@1?",
+  "Tell me about the 90% reduction at ReiSearch.",
   "ስለ SkillBridge ፕሮጀክት ንገረኝ",
 ];
 
