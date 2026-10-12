@@ -82,3 +82,10 @@ def test_cors_allows_configured_origin(monkeypatch):
     c = create_app().test_client()
     res = c.get("/api/health", headers={"Origin": "https://amir.dev"})
     assert res.headers.get("Access-Control-Allow-Origin") == "https://amir.dev"
+
+
+def test_bare_postgres_url_uses_installed_psycopg2_driver(monkeypatch):
+    # SQLAlchemy 2.1 would otherwise pick psycopg 3, which isn't installed
+    monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@db:5432/portfolio")
+    app = create_app()
+    assert app.config["SQLALCHEMY_DATABASE_URI"] == "postgresql+psycopg2://u:p@db:5432/portfolio"

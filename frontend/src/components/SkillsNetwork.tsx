@@ -144,6 +144,20 @@ export default function SkillsNetwork() {
   const [hovered, setHovered]       = useState<GraphNode | null>(null);
   const [tooltip, setTooltip]       = useState<Tooltip>(null);
   const [loading, setLoading]       = useState(true);
+  // near = has come within reach once (load graph lib + data); onScreen = currently visible
+  const [near, setNear]             = useState(false);
+  const [onScreen, setOnScreen]     = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      setOnScreen(entry.isIntersecting);
+      if (entry.isIntersecting) setNear(true);
+    }, { rootMargin: "300px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   // measure container
   useEffect(() => {
@@ -159,11 +173,12 @@ export default function SkillsNetwork() {
 
   // fetch graph data
   useEffect(() => {
+    if (!near) return;
     fetch("/api/skills/graph")
       .then((r) => r.json())
       .then((d) => { setGraphData(d); setLoading(false); })
       .catch(() => setLoading(false));
-  }, []);
+  }, [near]);
 
   const handleNodeHover = useCallback(
     (node: GraphNode | null, prevNode: GraphNode | null) => {
@@ -229,7 +244,8 @@ export default function SkillsNetwork() {
             onNodeHover={handleNodeHover as (node: object | null) => void}
             linkColor={() => "rgba(99,102,241,0.25)"}
             linkWidth={1.5}
-            linkDirectionalParticles={2}
+            // particles force a redraw every frame; dropping them offscreen lets the graph idle
+            linkDirectionalParticles={onScreen ? 2 : 0}
             linkDirectionalParticleWidth={1.5}
             linkDirectionalParticleColor={() => "#6366f1"}
             backgroundColor="transparent"

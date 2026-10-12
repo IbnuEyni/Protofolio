@@ -165,6 +165,7 @@ export default function ChatWidget() {
   const [histIdx, setHistIdx]   = useState(-1);
   const bottomRef               = useRef<HTMLDivElement>(null);
   const inputRef                = useRef<HTMLInputElement>(null);
+  const fabRef                  = useRef<HTMLButtonElement>(null);
 
   // boot sequence
   useEffect(() => {
@@ -184,8 +185,17 @@ export default function ChatWidget() {
   }, [messages, loading]);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 400);
+    if (!open) return;
+    const t = setTimeout(() => inputRef.current?.focus(), 400);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setOpen(false); fabRef.current?.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => { clearTimeout(t); document.removeEventListener("keydown", onKey); };
   }, [open]);
+
+  const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const announcement = lastAssistant ? lastAssistant.text : "";
 
   // build history for multi-turn context
   const buildHistory = useCallback((): History[] =>
@@ -234,10 +244,13 @@ export default function ChatWidget() {
     <>
       {/* ── FAB ─────────────────────────────────────────────────────────── */}
       <motion.button
+        ref={fabRef}
         onClick={() => setOpen((o) => !o)}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        aria-label="Toggle terminal chat"
+        aria-label={open ? "Close Ask-My-CV chat" : "Open Ask-My-CV chat"}
+        aria-expanded={open}
+        aria-controls="cv-terminal"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gray-900 border border-green-500/50 shadow-[0_0_20px_rgba(74,222,128,0.2)] flex items-center justify-center"
       >
         <AnimatePresence mode="wait">
@@ -254,6 +267,9 @@ export default function ChatWidget() {
         {open && (
           <motion.div
             key="terminal"
+            id="cv-terminal"
+            role="dialog"
+            aria-label="Ask-My-CV chat"
             initial={{ opacity: 0, scale: 0.92, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
@@ -271,7 +287,7 @@ export default function ChatWidget() {
               <span className="flex-1 text-center text-xs font-mono text-green-600">
                 amir@cv-terminal — ask-my-cv
               </span>
-              <span className="text-[10px] font-mono text-green-800">RAG v2</span>
+              <span className="text-[10px] font-mono text-green-600">RAG v2</span>
             </div>
 
             {/* output */}
@@ -290,7 +306,7 @@ export default function ChatWidget() {
                   transition={{ delay: 0.2 }}
                   className="flex flex-col gap-1.5 mt-1"
                 >
-                  <span className="text-[10px] font-mono text-green-800">// suggested queries:</span>
+                  <span className="text-[10px] font-mono text-green-600">// suggested queries:</span>
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
@@ -306,6 +322,9 @@ export default function ChatWidget() {
               <div ref={bottomRef} />
             </div>
 
+            {/* the typewriter updates char by char, so announce each answer once, whole */}
+            <p className="sr-only" aria-live="polite">{announcement}</p>
+
             {/* input */}
             <form
               onSubmit={(e) => { e.preventDefault(); submit(input); }}
@@ -318,9 +337,10 @@ export default function ChatWidget() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="ask anything… (↑↓ history)"
+                aria-label="Ask a question about Amir's experience"
                 maxLength={500}
                 disabled={loading || !booted}
-                className="flex-1 bg-transparent text-xs font-mono text-gray-200 placeholder-green-900 focus:outline-none disabled:opacity-40"
+                className="flex-1 bg-transparent text-xs font-mono text-gray-200 placeholder-green-700 focus:outline-none disabled:opacity-40"
               />
               <button
                 type="submit"

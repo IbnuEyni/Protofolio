@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useInView, animate, AnimatePresence } from "framer-motion";
 import {
   Briefcase, Code2, Brain, TrendingUp, Users, Zap,
   Clock, Star, ArrowUpRight, X, ExternalLink, Bot,
 } from "lucide-react";
 import type { Experience } from "@/lib/api";
+import { useDialog } from "@/lib/useDialog";
 
 // ── Per-role static enrichment ────────────────────────────────────────────────────
 
@@ -96,11 +97,15 @@ function formatDate(d: string | null): string {
 // ── Animated counter ───────────────────────────────────────────────────────────────
 
 function AnimatedMetric({ value, triggered }: { value: string; triggered: boolean }) {
-  const [display, setDisplay] = useState("0");
+  const ref      = useRef<HTMLSpanElement>(null);
   const numMatch = value.match(/[\d,]+(\.\d+)?/);
 
   useEffect(() => {
-    if (!triggered || !numMatch) { setDisplay(value); return; }
+    const el = ref.current;
+    if (!el) return;
+    const setDisplay = (text: string) => { el.textContent = text; };
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!triggered || !numMatch || reduceMotion) { setDisplay(value); return; }
     const target   = parseFloat(numMatch[0].replace(/,/g, ""));
     const decimals = numMatch[1] ? numMatch[1].length - 1 : 0;
     const prefix = value.slice(0, value.search(/[\d,]/));
@@ -113,7 +118,7 @@ function AnimatedMetric({ value, triggered }: { value: string; triggered: boolea
     return () => ctrl.stop();
   }, [triggered]);
 
-  return <span className="font-bold tabular-nums">{display}</span>;
+  return <span ref={ref} className="font-bold tabular-nums">{value}</span>;
 }
 
 // ── Impact badge ───────────────────────────────────────────────────────────────
@@ -141,6 +146,7 @@ function ImpactBadge({ badge, index, triggered }: { badge: ImpactBadge; index: n
 function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => void }) {
   const meta   = ROLE_META[exp.company] ?? DEFAULT_META;
   const accent = ACCENT_STYLES[meta.accent] ?? ACCENT_STYLES.indigo;
+  const closeRef = useDialog<HTMLButtonElement>(onClose);
 
   return (
     <motion.div
@@ -149,6 +155,9 @@ function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => voi
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="experience-modal-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <motion.div
@@ -168,11 +177,11 @@ function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => voi
               </span>
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-1">Experience</p>
-                <h3 className="text-xl font-bold text-white">{exp.role}</h3>
+                <h3 id="experience-modal-title" className="text-xl font-bold text-white">{exp.role}</h3>
                 <p className={`text-sm font-semibold mt-0.5 ${accent.text}`}>{exp.company}</p>
               </div>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors mt-1">
+            <button ref={closeRef} onClick={onClose} aria-label="Close" className="text-gray-500 hover:text-white transition-colors mt-1">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -269,24 +278,15 @@ function TimelineCard({ exp, index, isLast, onOpen }: { exp: Experience; index: 
   );
 
   return (
-    <div ref={ref}>
-      {/* mobile: spine on the left, card on the right */}
-      <div className="md:hidden grid grid-cols-[40px_1fr] gap-4 items-stretch">
-        <div className="flex flex-col items-center">{node}{spine}</div>
-        <div className="pb-10">
-          <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft={false} onOpen={onOpen} />
-        </div>
-      </div>
-
-      {/* desktop: alternating sides */}
-      <div className="hidden md:grid relative grid-cols-[1fr_48px_1fr] items-start gap-0 mb-12">
-        <div className={`pr-6 ${isLeft ? "block" : "invisible pointer-events-none"}`}>
-          {isLeft && <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft onOpen={onOpen} />}
-        </div>
-        <div className="flex flex-col items-center self-stretch">{node}{spine}</div>
-        <div className={`pl-6 ${!isLeft ? "block" : "invisible pointer-events-none"}`}>
-          {!isLeft && <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft={false} onOpen={onOpen} />}
-        </div>
+    // one card, placed by the grid: mobile = spine left / card right,
+    // desktop = spine centred with cards alternating sides
+    <div
+      ref={ref}
+      className="relative grid grid-cols-[40px_1fr] gap-4 items-stretch md:grid-cols-[1fr_48px_1fr] md:gap-0 md:items-start md:mb-12"
+    >
+      <div className="row-start-1 col-start-1 md:col-start-2 flex flex-col items-center self-stretch">{node}{spine}</div>
+      <div className={`row-start-1 col-start-2 pb-10 md:pb-0 ${isLeft ? "md:col-start-1 md:pr-6" : "md:col-start-3 md:pl-6"}`}>
+        <CardContent exp={exp} meta={meta} accent={accent} inView={inView} isLeft={isLeft} onOpen={onOpen} />
       </div>
     </div>
   );
@@ -387,6 +387,7 @@ function CardContent({
 
 export default function ExperienceTimeline({ experience }: { experience: Experience[] }) {
   const [selected, setSelected] = useState<Experience | null>(null);
+  const closeModal = useCallback(() => setSelected(null), []);
 
   return (
     <div className="relative">
@@ -410,7 +411,7 @@ export default function ExperienceTimeline({ experience }: { experience: Experie
       ))}
 
       <AnimatePresence>
-        {selected && <ExperienceModal exp={selected} onClose={() => setSelected(null)} />}
+        {selected && <ExperienceModal exp={selected} onClose={closeModal} />}
       </AnimatePresence>
     </div>
   );

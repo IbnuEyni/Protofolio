@@ -37,15 +37,13 @@ RUN pip install --upgrade pip --no-cache-dir \
 # ── Stage 2: runtime ──────────────────────────────────────────────────────────
 FROM python:3.12-slim AS runtime
 
-# Install only libpq (runtime shared library for psycopg2) + curl for healthcheck.
-# No gcc, no build tools.
-# hadolint ignore=DL3008,SC2015
+# Install only libpq (runtime shared library for psycopg2). No gcc, no build tools.
+# The SUID strip is grouped so its `|| true` can't mask a failed apt install.
+# hadolint ignore=DL3008
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        libpq5 \
-        curl \
+    && apt-get install -y --no-install-recommends libpq5 \
     && rm -rf /var/lib/apt/lists/* \
-    && find / -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true
+    && { find / -xdev -perm /6000 -type f -exec chmod a-s {} + 2>/dev/null || true; }
 
 WORKDIR /app
 
@@ -71,7 +69,7 @@ EXPOSE 5000
 
 # Healthcheck — Cloud Run also has its own startup probe in service.yaml
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD curl -fsS http://localhost:5000/api/health || exit 1
+    CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health', timeout=4)"]
 
 # Gunicorn tuned for Cloud Run:
 #   --workers 2        Cloud Run gives 1 vCPU per instance; 2 workers is optimal

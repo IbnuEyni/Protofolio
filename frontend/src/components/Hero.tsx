@@ -36,7 +36,9 @@ function makeParticle(W: number, H: number): Particle {
   };
 }
 
-const COUNT = 160;
+// one particle per ~9000px² (so ~40 on a phone, 160 on a large desktop) —
+// the connection pass is O(n²), so this keeps small CPUs from drowning
+const particleCount = (W: number, H: number) => Math.max(40, Math.min(160, Math.round((W * H) / 9000)));
 
 // ── Text animations ──────────────────────────────────────────────────────────
 
@@ -46,13 +48,13 @@ const container: Variants = {
 };
 
 const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28, filter: "blur(6px)" },
-  show:   { opacity: 1, y: 0,  filter: "blur(0px)", transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] } },
+  hidden: { opacity: 0, y: 28 },
+  show:   { opacity: 1, y: 0,  transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] } },
 };
 
 const fadeIn: Variants = {
-  hidden: { opacity: 0, filter: "blur(4px)" },
-  show:   { opacity: 1, filter: "blur(0px)", transition: { duration: 1.1, ease: [0.25, 0.1, 0.25, 1] as [number,number,number,number] } },
+  hidden: { opacity: 0 },
+  show:   { opacity: 1, transition: { duration: 1.1, ease: [0.25, 0.1, 0.25, 1] as [number,number,number,number] } },
 };
 
 // ── Hero ─────────────────────────────────────────────────────────────────────
@@ -107,14 +109,13 @@ export default function Hero() {
           Available · Kigali, Rwanda
         </motion.span>
 
-        {/* name */}
-        <motion.h1
-          variants={fadeUp}
+        {/* name — rendered visible from the first paint (it's the LCP element) */}
+        <h1
           className="font-bold tracking-[-0.03em] leading-none text-white hero-name"
           style={{ fontSize: "clamp(3.5rem, 10vw, 8.5rem)" }}
         >
           Amir
-        </motion.h1>
+        </h1>
 
         {/* last name / accent line */}
         <motion.div variants={fadeUp} className="mt-1 overflow-hidden">
@@ -278,22 +279,30 @@ function CanvasLayer({
     const resize = () => {
       canvas.width  = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
-      particles.current = Array.from({ length: COUNT }, () =>
+      particles.current = Array.from({ length: particleCount(canvas.width, canvas.height) }, () =>
         makeParticle(canvas.width, canvas.height)
       );
       if (!rafRef.current) draw();
     };
 
     const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       if (visible && !reduceMotion && !rafRef.current) rafRef.current = requestAnimationFrame(draw);
     });
-    io.observe(canvas);
-    resize();
 
-    return () => { cancelAnimationFrame(rafRef.current); ro.disconnect(); io.disconnect(); };
+    // decorative only — wait until the page is idle so it never competes with first paint
+    const start = () => { ro.observe(canvas); io.observe(canvas); resize(); };
+    const idle = window.requestIdleCallback
+      ? window.requestIdleCallback(start, { timeout: 2500 })
+      : window.setTimeout(start, 1200);
+
+    return () => {
+      if (window.cancelIdleCallback) window.cancelIdleCallback(idle); else window.clearTimeout(idle);
+      cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+      io.disconnect();
+    };
   }, []);
 
   return (

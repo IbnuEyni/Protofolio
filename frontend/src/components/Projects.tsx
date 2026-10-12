@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import type { Project } from "@/lib/api";
+import { useDialog } from "@/lib/useDialog";
 
 // ── Category tag colours ──────────────────────────────────────────────────────
 const TAG_PALETTE: Record<string, string> = {
@@ -107,6 +108,7 @@ function GitHubIcon() {
 // ── Expanded detail modal ─────────────────────────────────────────────────────
 function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
   const { gradient, accent, icon } = themeFor(project.title);
+  const closeRef = useDialog<HTMLButtonElement>(onClose);
 
   return (
     <motion.div
@@ -115,6 +117,9 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="project-modal-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <motion.div
@@ -132,10 +137,10 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
               <span className={`p-2.5 rounded-xl border bg-gray-900/60 ${accent}`}>{icon}</span>
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-1">Project</p>
-                <h3 className="text-xl font-bold text-white">{project.title}</h3>
+                <h3 id="project-modal-title" className="text-xl font-bold text-white">{project.title}</h3>
               </div>
             </div>
-            <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors mt-1">
+            <button ref={closeRef} onClick={onClose} aria-label="Close" className="text-gray-500 hover:text-white transition-colors mt-1">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -290,6 +295,12 @@ function CompactCard({ project, index, onClick }: { project: Project; index: num
       transition={{ duration: 0.4, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={`group relative flex flex-col rounded-xl border bg-gray-900/30 p-5 cursor-pointer hover:bg-gray-900/60 transition-all duration-200 ${accent}`}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`${project.title} — view details`}
+      onKeyDown={(e) => {
+        if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick(); }
+      }}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2.5">
@@ -309,7 +320,8 @@ function CompactCard({ project, index, onClick }: { project: Project; index: num
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-gray-600 hover:text-white transition-colors shrink-0 mt-0.5"
+                aria-label={`${project.title} — open live site`}
+                className="text-gray-600 hover:text-white transition-colors shrink-0 p-1 rounded"
               >
                 <ExternalLinkIcon />
               </a>
@@ -320,7 +332,8 @@ function CompactCard({ project, index, onClick }: { project: Project; index: num
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-gray-600 hover:text-white transition-colors shrink-0 mt-0.5"
+                aria-label={`${project.title} — source on GitHub`}
+                className="text-gray-600 hover:text-white transition-colors shrink-0 p-1 rounded"
               >
                 <GitHubIcon />
               </a>
@@ -369,6 +382,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const [activeFilter, setActiveFilter] = useState("All");
   const [selected, setSelected] = useState<Project | null>(null);
+  const closeModal = useCallback(() => setSelected(null), []);
 
   const filtered = projects.filter((p) => projectMatchesFilter(p, activeFilter));
   const featured = filtered.filter((p) => p.featured);
@@ -452,7 +466,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
 
       {/* ── Modal ── */}
       <AnimatePresence>
-        {selected && <ProjectModal project={selected} onClose={() => setSelected(null)} />}
+        {selected && <ProjectModal project={selected} onClose={closeModal} />}
       </AnimatePresence>
     </section>
   );

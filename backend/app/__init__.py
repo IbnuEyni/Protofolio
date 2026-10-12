@@ -8,9 +8,11 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "DATABASE_URL", "postgresql://postgres:postgres@db:5432/portfolio"
-    )
+    db_url = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@db:5432/portfolio")
+    # SQLAlchemy 2.1 maps bare postgresql:// to psycopg 3; we ship psycopg2
+    if db_url.startswith("postgresql://"):
+        db_url = "postgresql+psycopg2://" + db_url.removeprefix("postgresql://")
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # The browser only reaches the API through the same-origin Next.js proxy,
