@@ -24,7 +24,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -42,7 +42,7 @@ jobs:
 
   # ── Job 2: Backend lint + security audit ────────────────────────────────────
   lint-backend:
-    name: Backend — Lint & Security Audit
+    name: Backend — Tests, Lint & Security Audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -57,11 +57,15 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: backend
 
-      - name: Install audit tools
-        run: pip install --quiet bandit pip-audit
+      - name: Install test & audit tools
+        run: pip install --quiet pytest bandit pip-audit
+
+      - name: Unit tests
+        run: python -m pytest -q tests
+        working-directory: backend
 
       - name: Bandit security lint
-        run: bandit -r app/ --severity-level medium --confidence-level medium --format txt --exit-zero
+        run: bandit -r app/ --severity-level medium --confidence-level medium --format txt
         working-directory: backend
 
       - name: pip-audit
@@ -175,13 +179,20 @@ jobs:
         run: |
           BACKEND_URL=$(gcloud run services describe portfolio-backend \
             --region=${{ secrets.GCP_REGION }} --format="value(status.url)")
+          # Public URL for absolute OG-image links: a custom domain from the SITE_URL
+          # repo variable if set, else the existing Cloud Run URL (empty on first deploy)
+          SITE_URL="${{ vars.SITE_URL }}"
+          if [ -z "$SITE_URL" ]; then
+            SITE_URL=$(gcloud run services describe portfolio-frontend \
+              --region=${{ secrets.GCP_REGION }} --format="value(status.url)" 2>/dev/null || true)
+          fi
           gcloud run deploy portfolio-frontend \
             --image=$REGISTRY/frontend:${TAG:0:7} \
             --region=${{ secrets.GCP_REGION }} \
             --platform=managed \
             --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
-            --set-env-vars=NODE_ENV=production,BACKEND_URL=$BACKEND_URL,NEXT_TELEMETRY_DISABLED=1 \
-            --min-instances=0 \
+            --set-env-vars=NODE_ENV=production,BACKEND_URL=$BACKEND_URL,NEXT_TELEMETRY_DISABLED=1${SITE_URL:+,SITE_URL=$SITE_URL} \
+            --min-instances=1 \
             --max-instances=4 \
             --memory=512Mi \
             --quiet

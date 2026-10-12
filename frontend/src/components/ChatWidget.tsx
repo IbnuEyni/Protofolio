@@ -93,7 +93,7 @@ function MessageRow({ msg, isLast }: { msg: Message; isLast: boolean }) {
       {/* prompt line */}
       <div className="flex items-start gap-2">
         <span className={`text-xs font-mono shrink-0 mt-0.5 ${isUser ? "text-cyan-400" : "text-green-400"}`}>
-          {isUser ? "visitor@cv:~$" : "shuaib@rag:~>"}
+          {isUser ? "visitor@cv:~$" : "amir@rag:~>"}
         </span>
         <span className={`text-xs font-mono leading-relaxed whitespace-pre-wrap break-words ${isUser ? "text-gray-300" : "text-green-300"}`}>
           {isUser ? msg.text : displayed}
@@ -130,7 +130,7 @@ function MessageRow({ msg, isLast }: { msg: Message; isLast: boolean }) {
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs font-mono text-green-400 shrink-0">shuaib@rag:~&gt;</span>
+      <span className="text-xs font-mono text-green-400 shrink-0">amir@rag:~&gt;</span>
       <div className="flex gap-1 items-center">
         {[0, 1, 2].map((i) => (
           <motion.span
@@ -258,7 +258,7 @@ export default function ChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            className="fixed bottom-24 right-6 z-50 w-[22rem] sm:w-[30rem] flex flex-col rounded-xl border border-green-900/60 bg-gray-950 shadow-[0_0_40px_rgba(74,222,128,0.08)] overflow-hidden"
+            className="fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] sm:w-[30rem] flex flex-col rounded-xl border border-green-900/60 bg-gray-950 shadow-[0_0_40px_rgba(74,222,128,0.08)] overflow-hidden"
             style={{ maxHeight: "36rem" }}
           >
             {/* title bar */}
@@ -269,7 +269,7 @@ export default function ChatWidget() {
                 <div className="w-3 h-3 rounded-full bg-green-500/70" />
               </div>
               <span className="flex-1 text-center text-xs font-mono text-green-600">
-                shuaib@cv-terminal — ask-my-cv
+                amir@cv-terminal — ask-my-cv
               </span>
               <span className="text-[10px] font-mono text-green-800">RAG v2</span>
             </div>

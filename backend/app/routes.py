@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from . import db
 from .models import Project, Experience, Skill, Certification
 from .chat import ask
-from .auth import require_auth
+from .auth import require_auth, token_valid
+from .ratelimit import rate_limit
 
 bp = Blueprint("main", __name__)
 
@@ -17,11 +18,10 @@ def health():
 # ── Auth check ────────────────────────────────────────────────────────────────
 
 @bp.post("/api/admin/login")
+@rate_limit("login", limit=5, window=15 * 60)
 def admin_login():
     body = request.get_json(silent=True) or {}
-    import os
-    token = os.getenv("ADMIN_TOKEN", "")
-    if body.get("token") == token and token:
+    if token_valid(str(body.get("token") or "")):
         return jsonify({"ok": True})
     return jsonify({"error": "Invalid token"}), 401
 
@@ -280,6 +280,8 @@ def delete_certification(cid):
 # ── Chat ──────────────────────────────────────────────────────────────────────
 
 @bp.post("/api/chat")
+@rate_limit("chat", limit=10, window=60)
+@rate_limit("chat-global", limit=300, window=60 * 60, per_ip=False)
 def chat():
     body     = request.get_json(silent=True) or {}
     question = (body.get("question") or "").strip()
@@ -295,5 +297,6 @@ def chat():
         return jsonify(result)
     except EnvironmentError as e:
         return jsonify({"error": str(e)}), 503
-    except Exception as exc:
+    except Exception:
+        current_app.logger.exception("chat request failed")
         return jsonify({"error": "Failed to get a response. Please try again."}), 500

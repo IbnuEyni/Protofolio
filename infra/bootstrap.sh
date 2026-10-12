@@ -180,20 +180,11 @@ gcloud iam service-accounts add-iam-policy-binding "$CLOUDRUN_SA_EMAIL" \
   --quiet
 ok "Cloud Build SA can impersonate Cloud Run SA"
 
-# ── 8. Cloud Build trigger (optional — requires GITHUB_REPO) ─────────────────
-if [ -n "$GITHUB_REPO" ]; then
-  log "Creating Cloud Build trigger for $GITHUB_REPO..."
-  gcloud builds triggers create github \
-    --name="portfolio-deploy-main" \
-    --repo-name="$(basename "$GITHUB_REPO")" \
-    --repo-owner="$(dirname "$GITHUB_REPO")" \
-    --branch-pattern="^main$" \
-    --build-config="cloudbuild.yaml" \
-    --service-account="projects/${PROJECT_ID}/serviceAccounts/${CLOUDBUILD_SA_EMAIL}" \
-    --substitutions="_REGION=${REGION},_ARTIFACT_REPO=${ARTIFACT_REPO},_CLOUD_SQL_CONN=${PROJECT_ID}:${REGION}:${DB_INSTANCE},_SA_EMAIL=${CLOUDRUN_SA_EMAIL}" \
-    --quiet 2>/dev/null && ok "Trigger created" || ok "Trigger already exists"
-else
-  warn "GITHUB_REPO not set — skipping Cloud Build trigger creation."
+# ── 8. Deploy pipeline ────────────────────────────────────────────────────────
+# Deploys run from GitHub Actions (.github/workflows/deploy.yml), authenticated
+# via the Workload Identity Federation set up below — no Cloud Build trigger.
+if [ -z "$GITHUB_REPO" ]; then
+  warn "GITHUB_REPO not set — Workload Identity Federation needs it."
   warn "Set it and re-run: GITHUB_REPO=owner/repo ./infra/bootstrap.sh"
 fi
 

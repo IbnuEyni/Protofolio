@@ -3,7 +3,7 @@
 # =============================================================================
 
 # ── Stage 1: dependency install ───────────────────────────────────────────────
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 # hadolint ignore=DL3018
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -11,7 +11,7 @@ COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci --ignore-scripts
 
 # ── Stage 2: Next.js build ────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 # hadolint ignore=DL3018
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -20,6 +20,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json next.config.mjs tsconfig.json tailwind.config.ts postcss.config.js ./
 # Copy source last — only invalidates the build step, not npm ci
 COPY src ./src
+COPY public ./public
 ARG NEXT_PUBLIC_API_URL=""
 ARG BACKEND_URL=""
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
@@ -28,7 +29,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN --mount=type=cache,target=/app/.next/cache npm run build
 
 # ── Stage 3: production runner ────────────────────────────────────────────────
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 # hadolint ignore=DL3018
 RUN apk add --no-cache wget dumb-init
 
@@ -45,9 +46,8 @@ RUN addgroup --system --gid 10001 appgroup \
 
 COPY --from=builder --chown=10001:10001 /app/.next/standalone ./
 COPY --from=builder --chown=10001:10001 /app/.next/static     ./.next/static
-
-# public/ is optional — create empty dir (project has no static assets folder)
-RUN mkdir -p ./public
+# public/ holds static assets served as-is (résumé PDF)
+COPY --from=builder --chown=10001:10001 /app/public           ./public
 
 USER 10001
 EXPOSE 3000

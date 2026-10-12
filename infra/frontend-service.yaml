@@ -1,7 +1,7 @@
 # infra/frontend-service.yaml
 # Cloud Run service manifest for the Next.js frontend.
 #
-# Deployed by cloudbuild.yaml step 7.
+# Reference manifest; CI deploys via `gcloud run deploy` in .github/workflows/deploy.yml.
 # BACKEND_URL is resolved at deploy time from the backend service URL —
 # it is never baked into the Docker image.
 #
@@ -27,7 +27,7 @@ spec:
         tier: frontend
         commit: "${IMAGE_TAG}"
       annotations:
-        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/minScale: "1"
         autoscaling.knative.dev/maxScale: "4"
         run.googleapis.com/cpu-throttling: "true"
         run.googleapis.com/execution-environment: gen2

@@ -37,6 +37,16 @@ export default function Navbar() {
               </a>
             </li>
           ))}
+          <li className="hidden sm:block">
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-indigo-300 hover:text-white transition-colors"
+            >
+              Résumé
+            </a>
+          </li>
         </ul>
       </nav>
     </header>

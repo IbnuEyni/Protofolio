@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { motion, useMotionValue, useSpring, useTransform, type Variants } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, type Variants } from "framer-motion";
 
 // ── Particle system ──────────────────────────────────────────────────────────
 
 interface Particle {
-  x: number; y: number;        // base position (0-1 normalised)
+  x: number; y: number;        // position in canvas pixels
   z: number;                   // depth layer 0.2 – 1.0
   size: number;
   opacity: number;
@@ -38,94 +38,6 @@ function makeParticle(W: number, H: number): Particle {
 
 const COUNT = 160;
 
-function ParticleCanvas({ mouseX, mouseY }: { mouseX: number; mouseY: number }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particles = useRef<Particle[]>([]);
-  const rafRef = useRef<number>(0);
-  const mouse = useRef({ x: 0.5, y: 0.5 });
-
-  // keep mouse ref in sync without re-rendering
-  useEffect(() => { mouse.current = { x: mouseX, y: mouseY }; }, [mouseX, mouseY]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
-
-    const resize = () => {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      particles.current = Array.from({ length: COUNT }, () =>
-        makeParticle(canvas.width, canvas.height)
-      );
-    };
-
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-
-    const draw = () => {
-      const { width: W, height: H } = canvas;
-      ctx.clearRect(0, 0, W, H);
-
-      const mx = mouse.current.x;   // 0-1
-      const my = mouse.current.y;
-
-      for (const p of particles.current) {
-        // parallax offset — deeper particles move less
-        const px = p.x + (mx - 0.5) * 60 * p.z;
-        const py = p.y + (my - 0.5) * 40 * p.z;
-
-        // drift
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < -10) p.x = W + 10;
-        if (p.x > W + 10) p.x = -10;
-        if (p.y < -10) p.y = H + 10;
-        if (p.y > H + 10) p.y = -10;
-
-        // draw dot
-        ctx.beginPath();
-        ctx.arc(px, py, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `${p.color}${p.opacity})`;
-        ctx.fill();
-
-        // subtle connection lines between close particles in same depth band
-        for (const q of particles.current) {
-          if (q === p || Math.abs(q.z - p.z) > 0.15) continue;
-          const qx = q.x + (mx - 0.5) * 60 * q.z;
-          const qy = q.y + (my - 0.5) * 40 * q.z;
-          const dx = px - qx, dy = py - qy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 80) {
-            ctx.beginPath();
-            ctx.moveTo(px, py);
-            ctx.lineTo(qx, qy);
-            ctx.strokeStyle = `rgba(148,163,184,${0.04 * (1 - dist / 80) * p.z})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    rafRef.current = requestAnimationFrame(draw);
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      style={{ opacity: 0.9 }}
-    />
-  );
-}
-
 // ── Text animations ──────────────────────────────────────────────────────────
 
 const container: Variants = {
@@ -146,6 +58,7 @@ const fadeIn: Variants = {
 // ── Hero ─────────────────────────────────────────────────────────────────────
 
 export default function Hero() {
+  const reduceMotion = useReducedMotion();
   const rawX = useMotionValue(0.5);
   const rawY = useMotionValue(0.5);
 
@@ -163,27 +76,9 @@ export default function Hero() {
     rawY.set((e.clientY - r.top)  / r.height);
   }, [rawX, rawY]);
 
-  // expose spring values as plain numbers for canvas (avoids subscribing canvas to React re-renders)
-  const mouseXRef = useRef(0.5);
-  const mouseYRef = useRef(0.5);
-  useEffect(() => {
-    const unX = springX.on("change", v => { mouseXRef.current = v; });
-    const unY = springY.on("change", v => { mouseYRef.current = v; });
-    return () => { unX(); unY(); };
-  }, [springX, springY]);
-
-  // We pass a proxy object that the canvas reads via ref — no re-renders
-  const proxyX = useRef(0.5);
-  const proxyY = useRef(0.5);
-  useEffect(() => {
-    const unX = springX.on("change", v => { proxyX.current = v; });
-    const unY = springY.on("change", v => { proxyY.current = v; });
-    return () => { unX(); unY(); };
-  }, [springX, springY]);
-
   return (
     <section
-      onMouseMove={handleMouse}
+      onMouseMove={reduceMotion ? undefined : handleMouse}
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[#080c14]"
     >
       {/* ── Radial vignette overlays ── */}
@@ -261,10 +156,12 @@ export default function Hero() {
             View Projects
           </a>
           <a
-            href="#experience"
+            href="/resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
             className="px-7 py-3 rounded-full border border-slate-700 hover:border-slate-500 bg-slate-900/40 backdrop-blur-sm text-slate-300 hover:text-white text-sm font-medium tracking-wide transition-all duration-300"
           >
-            Work Experience
+            Download Résumé
           </a>
         </motion.div>
 
@@ -327,20 +224,12 @@ function CanvasLayer({
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx    = canvas.getContext("2d")!;
-
-    const resize = () => {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-      particles.current = Array.from({ length: COUNT }, () =>
-        makeParticle(canvas.width, canvas.height)
-      );
-    };
-
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
+    // reduced motion: draw a single static frame; otherwise animate only while on screen
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let visible = true;
 
     const draw = () => {
+      rafRef.current = 0;
       const { width: W, height: H } = canvas;
       ctx.clearRect(0, 0, W, H);
 
@@ -383,11 +272,28 @@ function CanvasLayer({
         }
       }
 
-      rafRef.current = requestAnimationFrame(draw);
+      if (visible && !reduceMotion) rafRef.current = requestAnimationFrame(draw);
     };
 
-    rafRef.current = requestAnimationFrame(draw);
-    return () => { cancelAnimationFrame(rafRef.current); ro.disconnect(); };
+    const resize = () => {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      particles.current = Array.from({ length: COUNT }, () =>
+        makeParticle(canvas.width, canvas.height)
+      );
+      if (!rafRef.current) draw();
+    };
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && !reduceMotion && !rafRef.current) rafRef.current = requestAnimationFrame(draw);
+    });
+    io.observe(canvas);
+    resize();
+
+    return () => { cancelAnimationFrame(rafRef.current); ro.disconnect(); io.disconnect(); };
   }, []);
 
   return (

@@ -192,10 +192,9 @@ export default function SkillsNetwork() {
   );
 
   return (
-    <section id="skills-network" className="max-w-5xl mx-auto px-6 py-24">
-      <p className="text-sm font-medium text-cyan-400 tracking-widest uppercase mb-2">Visualised</p>
-      <h2 className="text-3xl font-bold text-white mb-2">Skills Network</h2>
-      <p className="text-gray-400 text-sm mb-8">
+    <div id="skills-network" className="mt-20 scroll-mt-20">
+      <h3 className="text-lg font-semibold text-white mb-1">How it connects</h3>
+      <p className="text-gray-400 text-sm mb-6">
         How languages connect to frameworks, tools, and AI libraries. Hover a node to inspect proficiency.
       </p>
 
@@ -243,6 +242,6 @@ export default function SkillsNetwork() {
         <Legend />
         <NodeTooltip tooltip={tooltip} />
       </div>
-    </section>
+    </div>
   );
 }

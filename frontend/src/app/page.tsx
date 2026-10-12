@@ -4,7 +4,6 @@ import FeatureStrips from "@/components/FeatureStrips";
 import Experience from "@/components/Experience";
 import Projects from "@/components/ProjectsServer";
 import Skills from "@/components/Skills";
-import SkillsNetwork from "@/components/SkillsNetwork";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
@@ -28,8 +27,6 @@ export default function Home() {
         <Projects />
         <div className="border-t border-gray-800/60" />
         <Skills />
-        <div className="border-t border-gray-800/60" />
-        <SkillsNetwork />
         <div className="border-t border-gray-800/60" />
         <PerformanceDashboard />
       </main>

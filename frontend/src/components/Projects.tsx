@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { getProjects, type Project } from "@/lib/api";
+import type { Project } from "@/lib/api";
 
 // ── Category tag colours ──────────────────────────────────────────────────────
 const TAG_PALETTE: Record<string, string> = {

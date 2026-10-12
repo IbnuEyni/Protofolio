@@ -1,4 +1,5 @@
 import { getSkills, type Skill } from "@/lib/api";
+import SkillsNetwork from "./SkillsNetwork";
 
 function ProficiencyDots({ level }: { level: number }) {
   return (
@@ -51,6 +52,7 @@ export default async function Skills() {
           {categories.map((cat) => <SkillGroup key={cat} category={cat} skills={grouped[cat]} />)}
         </div>
       )}
+      <SkillsNetwork />
     </section>
   );
 }

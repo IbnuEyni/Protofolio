@@ -1,7 +1,7 @@
 # infra/backend-service.yaml
 # Cloud Run service manifest for the Flask backend.
 #
-# Deployed by cloudbuild.yaml via `gcloud run deploy` (step 4).
+# CI deploys via `gcloud run deploy` in .github/workflows/deploy.yml.
 # This file is the declarative source of truth for the service configuration.
 # Used for `gcloud run services replace` in manual / GitOps deployments.
 #
