@@ -279,6 +279,26 @@ def delete_certification(cid):
 
 # ── Chat ──────────────────────────────────────────────────────────────────────
 
+MAX_HISTORY_TURNS = 4
+MAX_TURN_CHARS = 1500  # well above a 300-token answer
+
+
+def _clean_history(history) -> list[dict]:
+    """History comes from the client, so it bounds what we forward to the LLM:
+    only well-formed user/assistant turns, the last few, each length-capped."""
+    if not isinstance(history, list):
+        return []
+    turns = [
+        {"role": t["role"], "content": t["content"][:MAX_TURN_CHARS]}
+        for t in history
+        if isinstance(t, dict)
+        and t.get("role") in ("user", "assistant")
+        and isinstance(t.get("content"), str)
+        and t["content"].strip()
+    ]
+    return turns[-MAX_HISTORY_TURNS:]
+
+
 @bp.post("/api/chat")
 @rate_limit("chat", limit=10, window=60)
 @rate_limit("chat-global", limit=300, window=60 * 60, per_ip=False)
@@ -290,10 +310,8 @@ def chat():
         return jsonify({"error": "question is required"}), 400
     if len(question) > 500:
         return jsonify({"error": "question too long (max 500 chars)"}), 400
-    if not isinstance(history, list):
-        history = []
     try:
-        result = ask(question, history)
+        result = ask(question, _clean_history(history))
         return jsonify(result)
     except EnvironmentError as e:
         return jsonify({"error": str(e)}), 503
