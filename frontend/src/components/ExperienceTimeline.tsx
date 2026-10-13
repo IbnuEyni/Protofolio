@@ -328,6 +328,7 @@ function CardContent({
           onClick={onOpen}
           className={`shrink-0 p-1.5 rounded-lg border ${accent.border} ${accent.text} opacity-60 hover:opacity-100 transition-opacity`}
           title="View details"
+          aria-label={`${exp.role} at ${exp.company} — view details`}
         >
           <ArrowUpRight className="w-3.5 h-3.5" />
         </button>

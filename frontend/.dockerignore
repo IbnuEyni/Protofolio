@@ -43,3 +43,9 @@ npm-debug.log*
 # OS artifacts
 .DS_Store
 Thumbs.db
+
+# End-to-end tests (run in CI, not part of the image)
+e2e/
+playwright.config.ts
+test-results/
+playwright-report/

@@ -15,3 +15,7 @@ node_modules/
 # GCP service account keys — never commit these
 infra/*.json
 infra/github-actions-key.json
+
+# Playwright output
+frontend/test-results/
+frontend/playwright-report/

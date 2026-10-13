@@ -44,6 +44,19 @@ docker compose exec backend python seed.py   # create tables + load CV data
 - API: http://localhost:5000/api/health
 - Admin: http://localhost:3000/admin (log in with `ADMIN_TOKEN`)
 
+### Tests
+
+```bash
+# backend unit tests (no database needed)
+cd backend && python -m pytest -q tests
+
+# end-to-end tests against the running stack (uses your installed Google Chrome)
+docker compose up -d --build --wait && docker compose exec backend python seed.py
+cd frontend && npx playwright test
+```
+
+The end-to-end suite runs in desktop and phone viewports. It covers rendering, the detail dialogs (keyboard and focus handling), the chat assistant with a stubbed API, reduced motion, SEO files, security headers, and a regression check for animations fighting CSS transitions. CI runs both suites before every deploy.
+
 ### Environment variables
 
 | Variable | Service | Purpose |
