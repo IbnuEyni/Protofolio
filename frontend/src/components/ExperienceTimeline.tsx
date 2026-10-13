@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useInView, animate, AnimatePresence } from "framer-motion";
+import { m, useInView, AnimatePresence } from "framer-motion";
 import {
   Briefcase, Code2, Brain, TrendingUp, Users, Zap,
   Clock, Star, ArrowUpRight, X, ExternalLink, Bot,
@@ -110,12 +110,18 @@ function AnimatedMetric({ value, triggered }: { value: string; triggered: boolea
     const decimals = numMatch[1] ? numMatch[1].length - 1 : 0;
     const prefix = value.slice(0, value.search(/[\d,]/));
     const suffix = value.slice(value.search(/[\d,]/) + numMatch[0].length);
-    const ctrl   = animate(0, target, {
-      duration: 1.4,
-      ease: "easeOut",
-      onUpdate: (v) => setDisplay(`${prefix}${v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`),
-    });
-    return () => ctrl.stop();
+    const fmt    = (v: number) =>
+      `${prefix}${v.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}${suffix}`;
+    // ease-out count-up over 1.4s, written straight to the DOM
+    const start  = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / 1400, 1);
+      setDisplay(fmt(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [triggered]);
 
   return <span ref={ref} className="font-bold tabular-nums">{value}</span>;
@@ -126,7 +132,7 @@ function AnimatedMetric({ value, triggered }: { value: string; triggered: boolea
 function ImpactBadge({ badge, index, triggered }: { badge: ImpactBadge; index: number; triggered: boolean }) {
   const styles = ACCENT_STYLES[badge.color] ?? ACCENT_STYLES.indigo;
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.8, y: 8 }}
       animate={triggered ? { opacity: 1, scale: 1, y: 0 } : {}}
       transition={{ delay: 0.3 + index * 0.12, duration: 0.4, ease: "easeOut" }}
@@ -137,7 +143,7 @@ function ImpactBadge({ badge, index, triggered }: { badge: ImpactBadge; index: n
         <AnimatedMetric value={badge.metric} triggered={triggered} />
         {" "}<span className="opacity-70 font-normal">{badge.label}</span>
       </span>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -149,7 +155,7 @@ function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => voi
   const closeRef = useDialog<HTMLButtonElement>(onClose);
 
   return (
-    <motion.div
+    <m.div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -160,7 +166,7 @@ function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => voi
       aria-labelledby="experience-modal-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <motion.div
+      <m.div
         className="relative w-full max-w-2xl bg-gray-950 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl"
         initial={{ scale: 0.92, y: 24 }}
         animate={{ scale: 1, y: 0 }}
@@ -242,8 +248,8 @@ function ExperienceModal({ exp, onClose }: { exp: Experience; onClose: () => voi
             )}
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -257,7 +263,7 @@ function TimelineCard({ exp, index, isLast, onOpen }: { exp: Experience; index: 
   const isLeft = index % 2 === 0;
 
   const node = (
-    <motion.div
+    <m.div
       initial={{ scale: 0, opacity: 0 }}
       animate={inView ? { scale: 1, opacity: 1 } : {}}
       transition={{ duration: 0.4, delay: 0.1 }}
@@ -265,10 +271,10 @@ function TimelineCard({ exp, index, isLast, onOpen }: { exp: Experience; index: 
         ${accent.dot} border-gray-900 ${accent.glow} text-white shrink-0`}
     >
       {meta.icon}
-    </motion.div>
+    </m.div>
   );
   const spine = !isLast && (
-    <motion.div
+    <m.div
       initial={{ scaleY: 0 }}
       animate={inView ? { scaleY: 1 } : {}}
       transition={{ duration: 0.8, delay: 0.3, ease: "easeInOut" }}
@@ -305,12 +311,12 @@ function CardContent({
   onOpen: () => void;
 }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, x: isLeft ? -32 : 32 }}
       animate={inView ? { opacity: 1, x: 0 } : {}}
       transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
       className={`rounded-2xl border bg-gray-900/60 backdrop-blur-sm p-5 hover:${accent.border}
-        transition-all duration-300 ${accent.border} ${accent.glow}`}
+        transition-[color,background-color,border-color,box-shadow] duration-300 ${accent.border} ${accent.glow}`}
     >
       {/* header */}
       <div className="flex items-start justify-between gap-3 mb-1">
@@ -379,7 +385,7 @@ function CardContent({
           </a>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -391,7 +397,7 @@ export default function ExperienceTimeline({ experience }: { experience: Experie
 
   return (
     <div className="relative">
-      <motion.div
+      <m.div
         initial={{ scaleX: 0 }}
         whileInView={{ scaleX: 1 }}
         viewport={{ once: true }}

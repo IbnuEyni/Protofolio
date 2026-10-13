@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { motion, useMotionValue, useSpring, useTransform, useReducedMotion, type Variants } from "framer-motion";
+import { m, useMotionValue, useSpring, useTransform, useReducedMotion, type Variants } from "framer-motion";
 
 // ── Particle system ──────────────────────────────────────────────────────────
 
@@ -93,7 +93,7 @@ export default function Hero() {
       <CanvasLayer springX={springX} springY={springY} />
 
       {/* ── Content ── */}
-      <motion.div
+      <m.div
         style={{ x: textX, y: textY }}
         variants={container}
         initial="hidden"
@@ -101,13 +101,13 @@ export default function Hero() {
         className="relative z-10 flex flex-col items-center text-center px-6 select-none"
       >
         {/* eyebrow */}
-        <motion.span
+        <m.span
           variants={fadeIn}
           className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/50 backdrop-blur-sm text-xs font-medium tracking-[0.2em] uppercase text-slate-400"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           Available · Kigali, Rwanda
-        </motion.span>
+        </m.span>
 
         {/* name — rendered visible from the first paint (it's the LCP element) */}
         <h1
@@ -118,27 +118,27 @@ export default function Hero() {
         </h1>
 
         {/* last name / accent line */}
-        <motion.div variants={fadeUp} className="mt-1 overflow-hidden">
+        <m.div variants={fadeUp} className="mt-1 overflow-hidden">
           <span
             className="block font-bold tracking-[-0.02em] leading-none bg-gradient-to-r from-slate-300 via-indigo-300 to-violet-400 bg-clip-text text-transparent"
             style={{ fontSize: "clamp(2rem, 5.5vw, 4.8rem)" }}
           >
             Ahmedin
           </span>
-        </motion.div>
+        </m.div>
 
         {/* divider */}
-        <motion.div
+        <m.div
           variants={fadeIn}
           className="mt-8 mb-8 flex items-center gap-4 w-full max-w-xs"
         >
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent" />
           <span className="text-slate-600 text-xs tracking-widest">◆</span>
           <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent" />
-        </motion.div>
+        </m.div>
 
         {/* subtitle */}
-        <motion.p
+        <m.p
           variants={fadeIn}
           className="text-slate-400 font-light tracking-wide max-w-lg"
           style={{ fontSize: "clamp(0.85rem, 2vw, 1.05rem)" }}
@@ -146,10 +146,10 @@ export default function Hero() {
           AI Engineer
           <span className="mx-2 text-slate-600">|</span>
           Multi-Agent Systems · Evaluation · Automation
-        </motion.p>
+        </m.p>
 
         {/* CTA row */}
-        <motion.div variants={fadeUp} className="mt-12 flex gap-4 flex-wrap justify-center">
+        <m.div variants={fadeUp} className="mt-12 flex gap-4 flex-wrap justify-center">
           <a
             href="#projects"
             className="group relative px-7 py-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium tracking-wide transition-all duration-300 shadow-[0_0_24px_rgba(99,102,241,0.35)] hover:shadow-[0_0_36px_rgba(99,102,241,0.55)]"
@@ -164,10 +164,10 @@ export default function Hero() {
           >
             Download Résumé
           </a>
-        </motion.div>
+        </m.div>
 
         {/* stat strip */}
-        <motion.div
+        <m.div
           variants={fadeIn}
           className="mt-20 flex gap-12 flex-wrap justify-center"
         >
@@ -181,23 +181,20 @@ export default function Hero() {
               <p className="text-xs text-slate-500 mt-1 tracking-widest uppercase">{s.label}</p>
             </div>
           ))}
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       {/* scroll cue */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.2, duration: 1 }}
         className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
         <span className="text-[10px] tracking-[0.25em] uppercase text-slate-600">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 6, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          className="w-px h-8 bg-gradient-to-b from-slate-600 to-transparent"
-        />
-      </motion.div>
+        {/* CSS (compositor-only) rather than a JS animation that runs forever */}
+        <div className="scroll-cue w-px h-8 bg-gradient-to-b from-slate-600 to-transparent" />
+      </m.div>
     </section>
   );
 }

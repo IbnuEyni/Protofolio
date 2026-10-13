@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -60,7 +60,7 @@ function useTypewriter(text: string, active: boolean, speed = 18) {
 
 function Cursor() {
   return (
-    <motion.span
+    <m.span
       animate={{ opacity: [1, 0] }}
       transition={{ repeat: Infinity, duration: 0.7, ease: "linear", repeatType: "mirror" }}
       className="inline-block w-2 h-4 bg-green-400 ml-0.5 align-middle"
@@ -84,7 +84,7 @@ function MessageRow({ msg, isLast }: { msg: Message; isLast: boolean }) {
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
@@ -103,7 +103,7 @@ function MessageRow({ msg, isLast }: { msg: Message; isLast: boolean }) {
 
       {/* source tags */}
       {!isUser && msg.sources && msg.sources.length > 0 && done && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -119,9 +119,9 @@ function MessageRow({ msg, isLast }: { msg: Message; isLast: boolean }) {
               🇪🇹 አማርኛ
             </span>
           )}
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -133,7 +133,7 @@ function TypingIndicator() {
       <span className="text-xs font-mono text-green-400 shrink-0">amir@rag:~&gt;</span>
       <div className="flex gap-1 items-center">
         {[0, 1, 2].map((i) => (
-          <motion.span
+          <m.span
             key={i}
             animate={{ opacity: [0.2, 1, 0.2] }}
             transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.2 }}
@@ -243,7 +243,7 @@ export default function ChatWidget() {
   return (
     <>
       {/* ── FAB ─────────────────────────────────────────────────────────── */}
-      <motion.button
+      <m.button
         ref={fabRef}
         onClick={() => setOpen((o) => !o)}
         whileHover={{ scale: 1.08 }}
@@ -255,17 +255,17 @@ export default function ChatWidget() {
       >
         <AnimatePresence mode="wait">
           {open ? (
-            <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }} className="text-green-400 font-mono text-lg font-bold">✕</motion.span>
+            <m.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }} className="text-green-400 font-mono text-lg font-bold">✕</m.span>
           ) : (
-            <motion.span key="t" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }} className="text-green-400 font-mono text-sm font-bold">&gt;_</motion.span>
+            <m.span key="t" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }} className="text-green-400 font-mono text-sm font-bold">&gt;_</m.span>
           )}
         </AnimatePresence>
-      </motion.button>
+      </m.button>
 
       {/* ── Terminal panel ───────────────────────────────────────────────── */}
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             key="terminal"
             id="cv-terminal"
             role="dialog"
@@ -300,7 +300,7 @@ export default function ChatWidget() {
 
               {/* suggestion chips */}
               {showSuggestions && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -316,7 +316,7 @@ export default function ChatWidget() {
                       &gt; {s}
                     </button>
                   ))}
-                </motion.div>
+                </m.div>
               )}
 
               <div ref={bottomRef} />
@@ -350,7 +350,7 @@ export default function ChatWidget() {
                 [enter]
               </button>
             </form>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

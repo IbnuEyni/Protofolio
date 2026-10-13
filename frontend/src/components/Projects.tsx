@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { m, useInView, AnimatePresence } from "framer-motion";
 import type { Project } from "@/lib/api";
 import { useDialog } from "@/lib/useDialog";
 
@@ -111,7 +111,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
   const closeRef = useDialog<HTMLButtonElement>(onClose);
 
   return (
-    <motion.div
+    <m.div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -122,7 +122,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
       aria-labelledby="project-modal-title"
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <motion.div
+      <m.div
         className="relative w-full max-w-2xl bg-gray-950 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl"
         initial={{ scale: 0.92, y: 24 }}
         animate={{ scale: 1, y: 0 }}
@@ -187,8 +187,8 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
             )}
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -197,11 +197,11 @@ function FeaturedCard({ project, index, onClick }: { project: Project; index: nu
   const { gradient, accent, glow, icon } = themeFor(project.title);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 32 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`group relative flex flex-col rounded-2xl border bg-gray-900/40 overflow-hidden cursor-pointer shadow-xl ${glow} hover:shadow-2xl transition-all duration-300 ${accent}`}
+      className={`group relative flex flex-col rounded-2xl border bg-gray-900/40 overflow-hidden cursor-pointer shadow-xl ${glow} hover:shadow-2xl transition-[color,background-color,border-color,box-shadow] duration-300 ${accent}`}
       onClick={onClick}
     >
       {/* top gradient wash */}
@@ -280,7 +280,7 @@ function FeaturedCard({ project, index, onClick }: { project: Project; index: nu
           </button>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -289,11 +289,11 @@ function CompactCard({ project, index, onClick }: { project: Project; index: num
   const { accent, icon } = themeFor(project.title);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`group relative flex flex-col rounded-xl border bg-gray-900/30 p-5 cursor-pointer hover:bg-gray-900/60 transition-all duration-200 ${accent}`}
+      className={`group relative flex flex-col rounded-xl border bg-gray-900/30 p-5 cursor-pointer hover:bg-gray-900/60 transition-[color,background-color,border-color,box-shadow] duration-200 ${accent}`}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -355,7 +355,7 @@ function CompactCard({ project, index, onClick }: { project: Project; index: num
           </span>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -391,7 +391,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
   return (
     <section id="projects" ref={ref} className="max-w-6xl mx-auto px-6 py-24">
       {/* ── Header ── */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.6 }}
@@ -417,10 +417,10 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
             {projects.length} projects
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* ── Filter pills ── */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 12 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.5, delay: 0.15 }}
@@ -439,7 +439,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
             {f}
           </button>
         ))}
-      </motion.div>
+      </m.div>
 
       {/* ── No results ── */}
       {filtered.length === 0 && (

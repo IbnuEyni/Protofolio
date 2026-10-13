@@ -6,7 +6,7 @@ import Projects from "@/components/ProjectsServer";
 import Skills from "@/components/Skills";
 import PerformanceDashboard from "@/components/PerformanceDashboard";
 import Footer from "@/components/Footer";
-import ChatWidget from "@/components/ChatWidget";
+import ChatWidget from "@/components/ChatWidgetLazy";
 
 export const dynamic = "force-dynamic";
 
