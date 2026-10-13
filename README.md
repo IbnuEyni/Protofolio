@@ -76,4 +76,4 @@ To use a custom domain for link previews, set a `SITE_URL` repository variable.
 
 ## Contact
 
-[GitHub](https://github.com/IbnuEyni) · [LinkedIn](https://www.linkedin.com/in/amir-ahmedin-812349264/) · [HuggingFace](https://huggingface.co/shuaibam) · shuaibamir69@gmail.com
+[GitHub](https://github.com/IbnuEyni) · [LinkedIn](https://www.linkedin.com/in/amir-ahmedin-812349264/) · [HuggingFace](https://huggingface.co/shuaibam) · shuaibahmedin@gmail.com

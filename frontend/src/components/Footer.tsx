@@ -1,4 +1,4 @@
-const EMAIL = "shuaibamir69@gmail.com";
+const EMAIL = "shuaibahmedin@gmail.com";
 
 const LINKS = [
   { label: "GitHub",      href: "https://github.com/IbnuEyni" },

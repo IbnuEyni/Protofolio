@@ -28,7 +28,7 @@ CHUNKS: List[Chunk] = [
             "Automation Specialist at ReiSearch (11/2024–06/2025), AI Developer at iCog-Labs (03/2024–10/2024), "
             "AI Researcher at the Ethiopian Artificial Intelligence Institute (04/2023–03/2024), and Flutter "
             "Developer at A2SV (11/2021–04/2023). He speaks English and Amharic. "
-            "Contact: shuaibamir69@gmail.com · github.com/IbnuEyni · huggingface.co/shuaibam."
+            "Contact: shuaibahmedin@gmail.com · github.com/IbnuEyni · huggingface.co/shuaibam."
         ),
         keywords=["who", "about", "introduce", "background", "summary", "engineer", "experience",
                   "amir", "profile", "contact", "email", "career", "kigali", "ማን", "ስለ", "መግለጫ"],
