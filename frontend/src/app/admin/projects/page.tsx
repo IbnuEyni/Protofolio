@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
 import { Field, Input, Textarea, TagInput, SaveButton } from "@/components/admin/FormFields";
-import { createProject, updateProject, deleteProject } from "@/lib/admin-api";
+import { createProject, updateProject, deleteProject, SessionExpiredError } from "@/lib/admin-api";
 import type { Project } from "@/lib/api";
 
 const EMPTY = { title: "", description: "", tech_stack: [] as string[], url: "", github_url: "", featured: false };
@@ -30,8 +30,12 @@ export default function ProjectsPage() {
 
   async function handleDelete(row: Project) {
     if (!confirm(`Delete "${row.title}"?`)) return;
-    await deleteProject(row.id);
-    load();
+    try {
+      await deleteProject(row.id);
+      load();
+    } catch (err) {
+      if (!(err instanceof SessionExpiredError)) alert(err instanceof Error ? err.message : "Delete failed");
+    }
   }
 
   async function submit(e: React.FormEvent) {

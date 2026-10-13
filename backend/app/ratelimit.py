@@ -18,7 +18,7 @@ def client_ip() -> str:
     return forwarded.split(",")[0].strip() or request.remote_addr or "unknown"
 
 
-def _allow(key: str, limit: int, window: float) -> bool:
+def _allow(key: str, limit: int, window: float, record: bool = True) -> bool:
     now = time.monotonic()
     with _lock:
         if len(_hits) > _MAX_KEYS:
@@ -29,8 +29,19 @@ def _allow(key: str, limit: int, window: float) -> bool:
             q.popleft()
         if len(q) >= limit:
             return False
-        q.append(now)
+        if record:
+            q.append(now)
         return True
+
+
+def under_limit(key: str, limit: int, window: float) -> bool:
+    """Check a budget without spending it (pair with record_hit)."""
+    return _allow(key, limit, window, record=False)
+
+
+def record_hit(key: str) -> None:
+    with _lock:
+        _hits[key].append(time.monotonic())
 
 
 def rate_limit(name: str, limit: int, window: float, per_ip: bool = True):

@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
 import { Field, Input, Select, SaveButton } from "@/components/admin/FormFields";
-import { createSkill, updateSkill, deleteSkill } from "@/lib/admin-api";
+import { createSkill, updateSkill, deleteSkill, SessionExpiredError } from "@/lib/admin-api";
+import { tierFor } from "@/lib/skillTiers";
 import type { Skill } from "@/lib/api";
 
-const CATEGORIES = ["Language", "Framework", "AI/ML", "Database", "DevOps"];
+// must match the categories the public Skills section and graph colour by
+const CATEGORIES = ["Language", "Framework", "AI/ML", "Data", "DevOps", "Integrations"];
 const EMPTY = { name: "", category: "Language", proficiency: 3 };
 
 export default function SkillsPage() {
@@ -30,7 +32,12 @@ export default function SkillsPage() {
 
   async function handleDelete(row: Skill) {
     if (!confirm(`Delete "${row.name}"?`)) return;
-    await deleteSkill(row.id); load();
+    try {
+      await deleteSkill(row.id);
+      load();
+    } catch (err) {
+      if (!(err instanceof SessionExpiredError)) alert(err instanceof Error ? err.message : "Delete failed");
+    }
   }
 
   async function submit(e: React.FormEvent) {
@@ -66,10 +73,9 @@ export default function SkillsPage() {
           { header: "Name", render: (r) => <span className="font-medium text-white">{r.name}</span> },
           { header: "Category", render: (r) => <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-300">{r.category}</span> },
           { header: "Proficiency", render: (r) => (
-            <div className="flex gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className={`w-2 h-2 rounded-full ${i < r.proficiency ? "bg-indigo-500" : "bg-gray-700"}`} />
-              ))}
+            <div className="flex items-center gap-3">
+              <span className="tabular-nums text-gray-300">{r.proficiency}/5</span>
+              <span className="text-xs text-gray-500">{tierFor(r.proficiency).label}</span>
             </div>
           )},
         ]}
@@ -84,7 +90,7 @@ export default function SkillsPage() {
                 {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </Select>
             </Field>
-            <Field label={`Proficiency: ${form.proficiency}/5`}>
+            <Field label={`Proficiency: ${form.proficiency}/5 — shown as “${tierFor(form.proficiency).label}”`}>
               <input type="range" min={1} max={5} value={form.proficiency} onChange={(e) => set("proficiency", Number(e.target.value))} className="w-full accent-indigo-500" />
             </Field>
             {error && <p className="text-xs text-red-400">{error}</p>}

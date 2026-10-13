@@ -8,10 +8,11 @@ export function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">{label}</label>
+    // wrapping <label> ties the caption to the control inside it
+    <label className="flex flex-col gap-1.5">
+      <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">{label}</span>
       {children}
-    </div>
+    </label>
   );
 }
 
@@ -49,8 +50,15 @@ export function TagInput({
       (e.target as HTMLInputElement).value = "";
     }
   };
+  // the input comes first: a wrapping <label> activates its first control,
+  // which must not be a tag's remove button
   return (
     <div className="flex flex-col gap-2">
+      <input
+        onKeyDown={handleKey}
+        placeholder="Type and press Enter to add tag"
+        className={base}
+      />
       <div className="flex flex-wrap gap-1.5">
         {value.map((t) => (
           <span
@@ -60,6 +68,7 @@ export function TagInput({
             {t}
             <button
               type="button"
+              aria-label={`Remove ${t}`}
               onClick={() => onChange(value.filter((x) => x !== t))}
               className="text-indigo-400 hover:text-white"
             >
@@ -68,11 +77,6 @@ export function TagInput({
           </span>
         ))}
       </div>
-      <input
-        onKeyDown={handleKey}
-        placeholder="Type and press Enter to add tag"
-        className={base}
-      />
     </div>
   );
 }

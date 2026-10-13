@@ -114,3 +114,13 @@ def test_chat_tolerates_non_list_history(client, monkeypatch):
     monkeypatch.setattr(routes, "ask", lambda q, h: {"answer": str(h), "lang": "en", "sources": []})
     res = client.post("/api/chat", json={"question": "hi", "history": {"oops": 1}})
     assert res.status_code == 200 and res.get_json()["answer"] == "[]"
+
+
+def test_successful_logins_do_not_count_toward_the_lockout(client):
+    codes = [client.post("/api/admin/login", json={"token": "s3cret"}).status_code for _ in range(8)]
+    assert codes == [200] * 8
+    # failures still lock out after 5
+    bad = [client.post("/api/admin/login", json={"token": "x"}).status_code for _ in range(6)]
+    assert bad == [401] * 5 + [429]
+    # and a locked-out IP can't sign in even with the right token
+    assert client.post("/api/admin/login", json={"token": "s3cret"}).status_code == 429

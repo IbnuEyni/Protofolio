@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
 import { Field, Input, SaveButton } from "@/components/admin/FormFields";
-import { createCertification, updateCertification, deleteCertification } from "@/lib/admin-api";
+import { createCertification, updateCertification, deleteCertification, SessionExpiredError } from "@/lib/admin-api";
 import type { Certification } from "@/lib/api";
 
 const EMPTY = { title: "", issuer: "", issued_date: "", url: "" };
@@ -29,7 +29,12 @@ export default function CertificationsPage() {
 
   async function handleDelete(row: Certification) {
     if (!confirm(`Delete "${row.title}"?`)) return;
-    await deleteCertification(row.id); load();
+    try {
+      await deleteCertification(row.id);
+      load();
+    } catch (err) {
+      if (!(err instanceof SessionExpiredError)) alert(err instanceof Error ? err.message : "Delete failed");
+    }
   }
 
   async function submit(e: React.FormEvent) {

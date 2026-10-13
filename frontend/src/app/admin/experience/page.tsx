@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import DataTable from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
 import { Field, Input, Textarea, TagInput, SaveButton } from "@/components/admin/FormFields";
-import { createExperience, updateExperience, deleteExperience } from "@/lib/admin-api";
+import { createExperience, updateExperience, deleteExperience, SessionExpiredError } from "@/lib/admin-api";
 import type { Experience } from "@/lib/api";
 
 const EMPTY = { role: "", company: "", start_date: "", end_date: "", description: "", tech_stack: [] as string[] };
@@ -29,7 +29,12 @@ export default function ExperiencePage() {
 
   async function handleDelete(row: Experience) {
     if (!confirm(`Delete "${row.role} at ${row.company}"?`)) return;
-    await deleteExperience(row.id); load();
+    try {
+      await deleteExperience(row.id);
+      load();
+    } catch (err) {
+      if (!(err instanceof SessionExpiredError)) alert(err instanceof Error ? err.message : "Delete failed");
+    }
   }
 
   async function submit(e: React.FormEvent) {

@@ -3,7 +3,7 @@ from . import db
 from .models import Project, Experience, Skill, Certification
 from .chat import ask
 from .auth import require_auth, token_valid
-from .ratelimit import rate_limit
+from .ratelimit import client_ip, rate_limit, record_hit, under_limit
 
 bp = Blueprint("main", __name__)
 
@@ -18,11 +18,15 @@ def health():
 # ── Auth check ────────────────────────────────────────────────────────────────
 
 @bp.post("/api/admin/login")
-@rate_limit("login", limit=5, window=15 * 60)
 def admin_login():
+    # only failed attempts count, so the real admin can't lock themselves out
+    key = f"login:{client_ip()}"
+    if not under_limit(key, limit=5, window=15 * 60):
+        return jsonify({"error": "Too many requests. Please try again later."}), 429
     body = request.get_json(silent=True) or {}
     if token_valid(str(body.get("token") or "")):
         return jsonify({"ok": True})
+    record_hit(key)
     return jsonify({"error": "Invalid token"}), 401
 
 

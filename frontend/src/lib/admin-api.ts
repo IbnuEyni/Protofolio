@@ -1,5 +1,11 @@
 const API = "/api";
 
+// Thrown after a 401 once the redirect to sign-in has started; callers
+// shouldn't show their own error on top of that navigation.
+export class SessionExpiredError extends Error {
+  constructor() { super("Session expired. Please sign in again."); }
+}
+
 function authHeaders(): HeadersInit {
   const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") ?? "" : "";
   return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
@@ -11,8 +17,15 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
     headers: authHeaders(),
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? `${method} ${path} failed`);
+  // Flask's 404 page is HTML, so don't assume a JSON body on errors
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    // token rotated or wrong: drop it and send the user back to sign in
+    sessionStorage.removeItem("admin_token");
+    window.location.assign("/admin/login");
+    throw new SessionExpiredError();
+  }
+  if (!res.ok) throw new Error(data.error ?? `${method} ${path} failed (${res.status})`);
   return data;
 }
 
