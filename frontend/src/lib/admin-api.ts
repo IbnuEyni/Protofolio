@@ -22,6 +22,9 @@ async function req<T>(method: string, path: string, body?: unknown): Promise<T> 
   if (res.status === 401) {
     // token rotated or wrong: drop it and send the user back to sign in
     sessionStorage.removeItem("admin_token");
+    // a full reload on purpose: it discards all in-memory admin state, and this
+    // plain module has no access to the Next router
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/admin/login");
     throw new SessionExpiredError();
   }

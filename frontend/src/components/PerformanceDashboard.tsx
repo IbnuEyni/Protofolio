@@ -98,15 +98,20 @@ function PassAtOneChart() {
 
 // ── Animated counter (supports decimals and a prefix) ────────────────────────
 
+function formatCount(v: number, prefix: string, suffix: string, decimals: number) {
+  return `${prefix}${v.toFixed(decimals)}${suffix}`;
+}
+
 function Counter({ to, prefix = "", suffix = "", decimals = 0 }: { to: number; prefix?: string; suffix?: string; decimals?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
-  const format = (v: number) => `${prefix}${v.toFixed(decimals)}${suffix}`;
+  const format = (v: number) => formatCount(v, prefix, suffix, decimals);
 
   // writes the DOM text directly each frame — no React re-render per tick
   useEffect(() => {
     if (!inView || !ref.current) return;
     const el = ref.current;
+    const format = (v: number) => formatCount(v, prefix, suffix, decimals);
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { el.textContent = format(to); return; }
     const duration = 1400;
     const start = performance.now();
@@ -118,7 +123,7 @@ function Counter({ to, prefix = "", suffix = "", decimals = 0 }: { to: number; p
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [inView, to]);
+  }, [inView, to, prefix, suffix, decimals]);
 
   return <span ref={ref} className="tabular-nums">{format(0)}</span>;
 }

@@ -97,11 +97,11 @@ function formatDate(d: string | null): string {
 // ── Animated counter ───────────────────────────────────────────────────────────────
 
 function AnimatedMetric({ value, triggered }: { value: string; triggered: boolean }) {
-  const ref      = useRef<HTMLSpanElement>(null);
-  const numMatch = value.match(/[\d,]+(\.\d+)?/);
+  const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const el = ref.current;
+    const numMatch = value.match(/[\d,]+(\.\d+)?/);
     if (!el) return;
     const setDisplay = (text: string) => { el.textContent = text; };
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -122,7 +122,7 @@ function AnimatedMetric({ value, triggered }: { value: string; triggered: boolea
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [triggered]);
+  }, [triggered, value]);
 
   return <span ref={ref} className="font-bold tabular-nums">{value}</span>;
 }

@@ -37,23 +37,24 @@ async function sendQuestion(
 // ── Typewriter ────────────────────────────────────────────────────────────────
 
 function useTypewriter(text: string, active: boolean, speed = 18) {
-  const [displayed, setDisplayed] = useState("");
-  const [done, setDone]           = useState(false);
+  // progress is stored with the text it belongs to, so a new message starts
+  // from zero without resetting state inside the effect
+  const [shown, setShown] = useState({ text: "", count: 0 });
 
   useEffect(() => {
-    if (!active) { setDisplayed(text); setDone(true); return; }
-    setDisplayed("");
-    setDone(false);
+    if (!active) return;
     let i = 0;
     const id = setInterval(() => {
       i++;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) { clearInterval(id); setDone(true); }
+      setShown({ text, count: i });
+      if (i >= text.length) clearInterval(id);
     }, speed);
     return () => clearInterval(id);
-  }, [text, active]);
+  }, [text, active, speed]);
 
-  return { displayed, done };
+  if (!active) return { displayed: text, done: true };
+  const count = shown.text === text ? shown.count : 0;
+  return { displayed: text.slice(0, count), done: count >= text.length };
 }
 
 // ── Blinking cursor ───────────────────────────────────────────────────────────
@@ -306,7 +307,7 @@ export default function ChatWidget() {
                   transition={{ delay: 0.2 }}
                   className="flex flex-col gap-1.5 mt-1"
                 >
-                  <span className="text-[10px] font-mono text-green-600">// suggested queries:</span>
+                  <span className="text-[10px] font-mono text-green-600">{"// suggested queries:"}</span>
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}

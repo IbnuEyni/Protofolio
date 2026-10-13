@@ -2,7 +2,7 @@ import { getExperience } from "@/lib/api";
 import ExperienceTimeline from "./ExperienceTimeline";
 
 export default async function Experience() {
-  let experience = await getExperience().catch(() => []);
+  const experience = await getExperience().catch(() => []);
 
   return (
     <section id="experience" className="max-w-5xl mx-auto px-6 py-24">

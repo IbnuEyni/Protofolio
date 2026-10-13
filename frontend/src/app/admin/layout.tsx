@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -12,25 +12,31 @@ const NAV = [
   { label: "Certifications", href: "/admin/certifications", icon: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" },
 ];
 
+// sessionStorage has no change events within a tab; the snapshot is re-read on
+// every render, which covers sign-in/out since both navigate
+const noSubscribe = () => () => {};
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [ready, setReady] = useState(false);
+  // null during server render (no sessionStorage there), then true/false
+  const hasToken = useSyncExternalStore(
+    noSubscribe,
+    () => sessionStorage.getItem("admin_token") !== null,
+    () => null,
+  );
 
   useEffect(() => {
-    if (pathname === "/admin/login") { setReady(true); return; }
-    const token = sessionStorage.getItem("admin_token");
-    if (!token) router.replace("/admin/login");
-    else setReady(true);
-  }, [pathname, router]);
+    if (pathname !== "/admin/login" && hasToken === false) router.replace("/admin/login");
+  }, [pathname, hasToken, router]);
 
   const logout = () => {
     sessionStorage.removeItem("admin_token");
     router.replace("/admin/login");
   };
 
-  if (!ready) return null;
   if (pathname === "/admin/login") return <>{children}</>;
+  if (!hasToken) return null;
 
   return (
     <div className="flex min-h-screen bg-gray-950 text-gray-100">
