@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { m, useInView, AnimatePresence } from "framer-motion";
 import type { Project } from "@/lib/api";
 import { useDialog } from "@/lib/useDialog";
+import ProjectDiagram from "./ProjectDiagram";
 
 // ── Category tag colours ──────────────────────────────────────────────────────
 const TAG_PALETTE: Record<string, string> = {
@@ -151,6 +152,8 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
         <div className="p-8 space-y-6">
           <p className="text-gray-300 leading-relaxed text-sm">{project.description}</p>
 
+          <ProjectDiagram title={project.title} />
+
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Tech Stack</p>
             <div className="flex flex-wrap gap-2">
@@ -225,10 +228,12 @@ function FeaturedCard({ project, index, onClick }: { project: Project; index: nu
           </h3>
         </div>
 
-        {/* description */}
-        <p className="text-gray-400 text-sm leading-relaxed flex-1 mb-5 line-clamp-4">
-          {project.description}
-        </p>
+        {/* architecture sketch, then description */}
+        <ProjectDiagram title={project.title} className="mb-4" />
+        {/* wrapper takes the stretch so the clamp on <p> holds at 3 lines */}
+        <div className="flex-1 mb-5">
+          <p className="text-gray-400 text-sm leading-relaxed line-clamp-3">{project.description}</p>
+        </div>
 
         {/* tags — show first 5 */}
         <div className="flex flex-wrap gap-1.5 mb-5">

@@ -19,6 +19,23 @@ test.describe("content", () => {
     await expect(page.getByText("No projects match")).toHaveCount(0);
   });
 
+  test("skills are grouped by experience tier, not dot ratings", async ({ page }) => {
+    await openHome(page);
+    const skills = page.locator("#skills");
+    for (const tier of ["Daily driver", "Shipped in production", "Working knowledge"]) {
+      await expect(skills.getByRole("heading", { name: tier })).toBeVisible();
+    }
+    // Python is used by most projects; its pill says which ones to screen readers
+    await expect(skills.getByRole("listitem").filter({ hasText: /^Python/ })).toContainText("used in Oracle Forge");
+  });
+
+  test("featured projects show an architecture diagram", async ({ page }) => {
+    await openHome(page);
+    await expect(page.getByRole("img", { name: /^Architecture: AST analysis, PDF parsing, Diagram vision → Prosecutor/ }))
+      .toBeVisible();
+    await expect(page.getByRole("img", { name: /NEW → EMAILED → REPLIED → QUALIFIED → BOOKED/ })).toBeVisible();
+  });
+
   test("résumé is downloadable as a PDF", async ({ request }) => {
     const res = await request.get("/resume.pdf");
     expect(res.status()).toBe(200);

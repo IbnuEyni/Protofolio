@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { tierFor } from "@/lib/skillTiers";
 
 // SSR-safe import — ForceGraph2D uses browser APIs
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
@@ -33,10 +34,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   DevOps:        "#f59e0b", // amber
   Integrations:  "#f472b6", // pink
   Other:         "#6b7280", // gray
-};
-
-const PROFICIENCY_LABELS: Record<number, string> = {
-  1: "Beginner", 2: "Elementary", 3: "Intermediate", 4: "Advanced", 5: "Expert",
 };
 
 function nodeColor(node: GraphNode): string {
@@ -120,17 +117,8 @@ function NodeTooltip({ tooltip }: { tooltip: Tooltip }) {
       className="pointer-events-none absolute z-20 px-3 py-2 rounded-xl border text-xs shadow-xl backdrop-blur-sm bg-gray-900/95"
       style={{ left: x + 14, top: y - 10, borderColor: color + "60" }}
     >
-      <p className="font-semibold text-white">{node.label}</p>
-      <p className="text-gray-400 mt-0.5">{node.category}</p>
-      <div className="flex gap-0.5 mt-1.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={i}
-            className="w-3 h-1.5 rounded-sm"
-            style={{ backgroundColor: i < node.proficiency ? color : "#374151" }}
-          />
-        ))}
-      </div>
+      <p className="font-semibold text-white">{node.name}</p>
+      <p className="text-gray-400 mt-0.5">{node.category} · {tierFor(node.proficiency).label}</p>
     </div>
   );
 }
@@ -210,7 +198,7 @@ export default function SkillsNetwork() {
     <div id="skills-network" className="mt-20 scroll-mt-20">
       <h3 className="text-lg font-semibold text-white mb-1">How it connects</h3>
       <p className="text-gray-400 text-sm mb-6">
-        How languages connect to frameworks, tools, and AI libraries. Hover a node to inspect proficiency.
+        How languages connect to frameworks, tools, and AI libraries. Hover a node for its category and experience level.
       </p>
 
       <div
